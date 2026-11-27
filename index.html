@@ -616,6 +616,8 @@ function placar(g, compacto) {
     '<div class="score-row"><div class="name"><span>' + esc(p.name) + '</span></div><div class="pts">' + p.score + ' / ' + META + '</div><div class="bar"><i style="width:' + Math.min(100, p.score / META * 100) + '%"></i></div></div>').join("") + '</div>';
 }
 
+const LOGO_ZODIAC = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 34L19 22L29 27L38 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 4"/><circle cx="10" cy="34" r="3" fill="#fff"/><circle cx="19" cy="22" r="3" fill="#fff"/><circle cx="29" cy="27" r="3" fill="#fff"/><path d="M38 6l1.8 4.2L44 12l-4.2 1.8L38 18l-1.8-4.2L32 12l4.2-1.8z" fill="#FFD447"/></svg>';
+
 /* ===== Jogos da home =====
    Para adicionar um jogo novo, acrescente um item nesta lista.
    "acao" é o que o botão Jogar dispara; "pronto: false" mostra o jogo como Em breve. */
@@ -625,13 +627,19 @@ const JOGOS = [
     resumo: "Cantarole uma música sem palavras e faça seu time adivinhar.",
     pessoas: "4 ou mais", idade: "10+", tipo: "Festa, música", duracao: "20 a 40 min",
     acao: "preparar", tutorial: "tutorial"
+  },
+  {
+    id: "zodiac", nome: "Zodiac", logo: LOGO_ZODIAC, fundo: "#0B0F2A", sub: "Cooperativo · cada um no seu celular", pronto: true,
+    resumo: "Acendam juntos cinco constelações sem ver as próprias cartas, só com dicas dos outros.",
+    pessoas: "2 a 5", idade: "8+", tipo: "Cooperativo, cartas", duracao: "25 a 40 min",
+    acao: "zodiac"
   }
 ];
 
 function cartaoJogo(j) {
   const aberto = S.open === j.id;
   return '<div class="game-card' + (aberto ? " open" : "") + '">' +
-    '<button class="game-head" data-act="toggle" data-v="' + j.id + '" aria-expanded="' + aberto + '"><div class="logo">' + j.logo + '</div><div><h2>' + esc(j.nome) + '</h2><span class="muted small">' + esc(j.sub) + '</span></div><span class="chev">▾</span></button>' +
+    '<button class="game-head" data-act="toggle" data-v="' + j.id + '" aria-expanded="' + aberto + '"><div class="logo"' + (j.fundo ? ' style="background:' + j.fundo + '"' : "") + '>' + j.logo + '</div><div><h2>' + esc(j.nome) + '</h2><span class="muted small">' + esc(j.sub) + '</span></div><span class="chev">▾</span></button>' +
     (aberto ? '<div class="facts">' +
       '<div class="fact wide"><div class="label">Resumo</div><div class="v">' + esc(j.resumo) + '</div></div>' +
       '<div class="fact"><div class="label">Pessoas</div><div class="v">' + esc(j.pessoas) + '</div></div>' +
@@ -809,6 +817,7 @@ document.getElementById("app").addEventListener("click", e => {
   switch (a) {
     case "toggle": S.open = S.open === el.dataset.v ? null : el.dataset.v; break;
     case "preparar": S.err = ""; S.screen = "setup"; break;
+    case "zodiac": location.href = "zodiac/"; return;
     case "tutorial": S.tut = 0; S.tutNext = "menu"; S.screen = "tutorial"; break;
     case "tut-next": S.tut++; break;
     case "tut-prev": S.tut--; break;

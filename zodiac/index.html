@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Zodiac</title>
+<meta name="theme-color" content="#0B0F2A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Zodiac: céu noturno sempre escuro. Uma coluna de celular; a mesa cresce para baixo. */
+:root {
+  --bg: #0B0F2A;
+  --bg2: #121842;
+  --surface: #1A2152;
+  --surface2: #232C66;
+  --ink: #F3F1FF;
+  --muted: #A9AEDB;
+  --line: #313A7A;
+  --accent: #FFD447;
+  --accent-ink: #1B1400;
+  --danger: #FF6B7A;
+  --ok: #4FD69C;
+  --escorpiao: #FF5D6C;
+  --touro: #FF9A3C;
+  --leao: #FFD447;
+  --virgem: #5AB0FF;
+  --gemeos: #4FD69C;
+  --display: "Bagel Fat One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; overscroll-behavior-y: none; }
+body {
+  margin: 0; color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45;
+  background: var(--bg);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 9%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 40% 30%, #fff5 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 44%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 62%, #fff5 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 60% 78%, #fff4 50%, transparent 51%),
+    radial-gradient(1px 1px at 8% 90%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 86%, #fff5 50%, transparent 51%);
+  background-attachment: fixed;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+#app { max-width: 560px; margin: 0 auto; padding-block: 12px 40px; display: flex; flex-direction: column; gap: 16px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+input { font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; width: 100%; box-sizing: border-box; }
+input.codigo { font-family: var(--display); font-size: 28px; letter-spacing: .2em; text-transform: uppercase; text-align: center; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.tiny { font-size: 12px; }
+.label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; min-width: 0; }
+.center { text-align: center; }
+
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 18px; border-radius: 16px; font-weight: 700; font-size: 17px; width: 100%; box-sizing: border-box; transition: transform .08s ease; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { background: var(--surface); border: 1.5px solid var(--line); }
+.btn-danger { background: var(--danger); color: #2A0006; }
+.btn[disabled] { opacity: .4; cursor: not-allowed; }
+.btn.small { min-height: 42px; font-size: 15px; padding: 8px 12px; }
+
+.topbar { display: flex; align-items: center; gap: 8px; }
+.brand { font-family: var(--display); font-size: 24px; flex: 1; min-width: 0; color: var(--accent); }
+.icon-btn, .text-btn { height: 44px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; flex: none; }
+.icon-btn { width: 44px; display: grid; place-items: center; font-size: 18px; }
+.text-btn { padding: 0 12px; font-size: 14px; white-space: nowrap; }
+
+.card-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.hero h1 { font-family: var(--display); font-weight: 400; font-size: 44px; line-height: 1; color: var(--accent); }
+.erro { background: #4A1420; border: 1.5px solid var(--danger); border-radius: 14px; padding: 10px 14px; }
+.aviso { background: var(--surface2); border: 1.5px solid var(--accent); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.divisor { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
+.divisor::before, .divisor::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+.niveis { display: flex; flex-direction: column; gap: 8px; }
+.nivel { text-align: left; background: var(--bg2); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; gap: 12px; align-items: flex-start; }
+.nivel .radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); flex: none; margin-top: 3px; display: grid; place-items: center; }
+.nivel.on { border-color: var(--accent); }
+.nivel.on .radio { border-color: var(--accent); }
+.nivel.on .radio::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+.nivel b { display: block; }
+
+.codigo-grande { font-family: var(--display); font-size: 56px; letter-spacing: .14em; color: var(--accent); line-height: 1; }
+.qr { background: #fff; padding: 10px; border-radius: 14px; width: 168px; height: 168px; margin: 0 auto; }
+.qr img, .qr canvas { width: 100% !important; height: 100% !important; }
+.pessoas { display: flex; flex-direction: column; gap: 8px; }
+.pessoa { display: flex; align-items: center; gap: 10px; background: var(--bg2); border-radius: 14px; padding: 10px 12px; }
+.pessoa .nome { flex: 1; font-weight: 700; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.tag { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--surface2); color: var(--muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 10px 14px; border-radius: 99px; background: var(--surface2); border: 1.5px solid var(--line); font-weight: 700; }
+.chip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.roda { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 700; }
+.roda .seta { color: var(--muted); }
+
+/* Mesa */
+.ceu { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.const { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 8px 4px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.const .sim { font-size: 22px; line-height: 1; color: var(--cc); }
+.const .nm { font-size: 11px; color: var(--muted); }
+.const .n { font-family: var(--display); font-size: 22px; line-height: 1; color: var(--cc); }
+.estrelas { display: flex; gap: 2px; }
+.estrelas i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.estrelas i.on { background: var(--cc); box-shadow: 0 0 6px var(--cc); }
+.const.completa { border-color: var(--cc); box-shadow: 0 0 14px -4px var(--cc); }
+.status { display: flex; gap: 8px; flex-wrap: wrap; }
+.st { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 10px; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; }
+.st.alerta { border-color: var(--danger); }
+.icos { display: inline-flex; gap: 2px; }
+.icos svg { width: 14px; height: 14px; }
+
+.vez { text-align: center; font-weight: 700; padding: 10px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); }
+.vez.minha { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.ultima { background: var(--bg2); border-left: 4px solid var(--accent); border-radius: 10px; padding: 8px 12px; font-size: 15px; }
+.pausa { background: #3B2C00; border: 1.5px solid var(--accent); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+.mao-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.mao-box.davez { border-color: var(--accent); }
+.mao-head { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.mao-head .seq { margin-left: auto; font-size: 12px; color: var(--muted); font-weight: 500; }
+.mao { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.carta { position: relative; aspect-ratio: 5 / 7; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: var(--bg2); border: 2px solid var(--cc, var(--line)); min-width: 0; padding: 2px; box-sizing: border-box; }
+.carta .num { font-family: var(--display); font-size: 30px; line-height: 1; color: var(--cc); }
+.carta .sim { font-size: 18px; line-height: 1; color: var(--cc); }
+.carta.frente { background: linear-gradient(160deg, color-mix(in srgb, var(--cc) 22%, var(--bg2)), var(--bg2)); }
+.carta.costas { background: repeating-linear-gradient(45deg, #1d2560 0 6px, #192052 6px 12px); border-color: var(--line); }
+.carta.costas.sabida { border-color: var(--cc); }
+.carta .q { font-family: var(--display); font-size: 26px; color: #ffffff30; }
+.carta .nao { position: absolute; bottom: 3px; left: 3px; right: 3px; font-size: 9px; line-height: 1.1; color: var(--muted); text-align: center; overflow: hidden; }
+.carta .sabe { position: absolute; top: 3px; left: 3px; right: 3px; font-size: 10px; font-weight: 700; color: var(--ink); text-align: center; }
+.carta .nota { position: absolute; top: -6px; right: -6px; background: var(--surface2); border: 1.5px dashed var(--accent); border-radius: 99px; font-size: 10px; padding: 1px 5px; color: var(--accent); white-space: nowrap; }
+.carta.marcada { box-shadow: 0 0 0 3px var(--accent), 0 0 18px var(--accent); }
+.carta.previa { box-shadow: 0 0 0 3px #fff, 0 0 16px #fff8; }
+.carta.sel { transform: translateY(-4px); box-shadow: 0 0 0 3px var(--accent); }
+.ordem-cartas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; font-size: 11px; line-height: 1.1; color: var(--muted); text-align: center; margin-top: -2px; }
+.carta .pos { position: absolute; bottom: -18px; font-size: 11px; color: var(--muted); }
+
+.sheet-bg { position: fixed; inset: 0; background: rgba(3, 5, 20, .6); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--bg2); width: 100%; max-width: 560px; max-height: 88%; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; box-sizing: border-box; padding-bottom: env(safe-area-inset-bottom, 0px); border-top: 1.5px solid var(--line); }
+.sheet-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.sheet-head h2 { font-family: var(--display); font-weight: 400; font-size: 24px; flex: 1; }
+.sheet-body { overflow-y: auto; padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+.passo { display: flex; flex-direction: column; gap: 10px; min-height: 180px; }
+.passo h3 { font-size: 20px; }
+.pontos-passo { display: flex; gap: 6px; justify-content: center; }
+.pontos-passo i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.pontos-passo i.on { background: var(--accent); }
+
+details { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 10px 14px; }
+details summary { font-weight: 700; cursor: pointer; }
+.descarte { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.descarte .linha { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.mini { display: inline-grid; place-items: center; width: 24px; height: 30px; border-radius: 6px; border: 1.5px solid var(--cc); color: var(--cc); font-weight: 700; font-size: 14px; }
+.hist { margin: 8px 0 0; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+
+.fim h1 { font-family: var(--display); font-weight: 400; font-size: 72px; line-height: 1; color: var(--accent); }
+.fim h2 { font-size: 24px; }
+.conexao { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); background: #3B2C00; border: 1.5px solid var(--accent); border-radius: 99px; padding: 6px 14px; font-weight: 700; font-size: 14px; z-index: 30; }
+@media (max-width: 360px) { .carta .num { font-size: 24px; } .codigo-grande { font-size: 44px; } }
+@media (prefers-reduced-motion: reduce) { .btn, .carta { transition: none; } }
+</style>
+</head>
+<body>
+<div id="app" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+"use strict";
+/* ===== Configuração ===== */
+const PARAMS = new URLSearchParams(location.search);
+const LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
+const SERVIDOR = PARAMS.get("servidor") || (LOCAL ? "http://localhost:8787" : "https://zodiac-salas.poeltico.workers.dev");
+const WS_BASE = SERVIDOR.replace(/^http/, "ws");
+
+const CONST = {
+  escorpiao: { nome: "Escorpião", sim: "♏︎", estrela: "Antares" },
+  touro: { nome: "Touro", sim: "♉︎", estrela: "Aldebarã" },
+  leao: { nome: "Leão", sim: "♌︎", estrela: "Régulo" },
+  virgem: { nome: "Virgem", sim: "♍︎", estrela: "Spica" },
+  gemeos: { nome: "Gêmeos", sim: "♊︎", estrela: "Pólux" }
+};
+const CORES = Object.keys(CONST);
+const NIVEIS = {
+  facil: { nome: "Fácil", desc: "O app lembra todas as dicas e já anota o que elas descartam (\"não é 1\"). Dá para anotar suspeitas." },
+  normal: { nome: "Normal", desc: "O app mostra só as cartas apontadas na última rodada. Dá para anotar suspeitas." },
+  dificil: { nome: "Difícil", desc: "Nada fica anotado no celular. É tudo de cabeça." }
+};
+
+/* ===== Estado local ===== */
+function ler(k, padrao) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : padrao; } catch { return padrao; } }
+function gravar(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+const S = {
+  nome: ler("zodiac-nome", ""),
+  sessao: ler("zodiac-sessao", null), // { codigo, token }
+  codigoDigitado: (PARAMS.get("sala") || "").toUpperCase(),
+  nivelNovo: ler("zodiac-nivel", "normal"),
+  estado: null, // sala vinda do servidor
+  voce: null,
+  conexao: "off", // off | conectando | on
+  erro: "",
+  ocupado: false,
+  escolherLugar: null,
+  aguardando: null,
+  sel: null, // { tipo: "minha" | "outro", pid, carta }
+  regras: null, // número do passo aberto
+  confirmar: null, // "recomecar" | "sair" | "mesa"
+  primeiro: null,
+  descarteAberto: false
+};
+
+/* ===== Conexão ===== */
+let ws = null, tentativas = 0, timerReconexao = null, timerPing = null, saindo = false;
+
+function conectar() {
+  if (!S.sessao) return;
+  clearTimeout(timerReconexao);
+  if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
+  saindo = false;
+  S.conexao = "conectando";
+  render();
+  const sock = new WebSocket(WS_BASE + "/sala/" + S.sessao.codigo + "/ws");
+  ws = sock;
+  sock.onopen = () => {
+    tentativas = 0;
+    sock.send(JSON.stringify({ t: "entrar", token: S.sessao.token, nome: S.nome }));
+    clearInterval(timerPing);
+    timerPing = setInterval(() => { if (sock.readyState === 1) sock.send("ping"); }, 25000);
+  };
+  sock.onmessage = e => { if (e.data !== "pong") receber(JSON.parse(e.data)); };
+  sock.onclose = ev => {
+    if (ws !== sock) return;
+    clearInterval(timerPing);
+    S.conexao = "off";
+    if (ev.code === 4004) { esquecerSala("Essa sala não existe mais. Ela some depois de um dia sem uso."); return; }
+    if (!saindo && S.sessao) {
+      const espera = Math.min(10000, 1000 * 2 ** tentativas++);
+      timerReconexao = setTimeout(conectar, espera);
+    }
+    render();
+  };
+}
+
+function enviar(m) {
+  if (ws && ws.readyState === 1) { ws.send(JSON.stringify(m)); return true; }
+  S.erro = "Sem conexão com a sala. Tentando de novo…";
+  render();
+  conectar();
+  return false;
+}
+
+function receber(m) {
+  if (m.t === "estado") {
+    const antes = S.estado;
+    S.estado = m.sala; S.voce = m.voce; S.conexao = "on"; S.escolherLugar = null; S.aguardando = null; S.erro = "";
+    avisarVez(antes, m.sala);
+    if (S.sel && !selValida()) S.sel = null;
+    manterTelaAcesa();
+  } else if (m.t === "erro") {
+    S.erro = m.msg;
+  } else if (m.t === "naoExiste") {
+    esquecerSala("Não achei essa sala. Confira o código.");
+    return;
+  } else if (m.t === "removido") {
+    esquecerSala("Você saiu da sala.");
+    return;
+  } else if (m.t === "escolherLugar") {
+    S.conexao = "on"; S.escolherLugar = m.livres;
+  } else if (m.t === "aguardando") {
+    S.aguardando = m.nome;
+  }
+  render();
+}
+
+function esquecerSala(msg) {
+  saindo = true;
+  if (ws) try { ws.close(); } catch {}
+  ws = null;
+  S.sessao = null; gravar("zodiac-sessao", null);
+  S.estado = null; S.voce = null; S.sel = null; S.escolherLugar = null; S.aguardando = null; S.confirmar = null;
+  S.conexao = "off";
+  S.erro = msg || "";
+  liberarTela();
+  render();
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && S.sessao) { tentativas = 0; conectar(); manterTelaAcesa(); }
+});
+window.addEventListener("online", () => { if (S.sessao) { tentativas = 0; conectar(); } });
+
+async function criarSala() {
+  const nome = S.nome.trim();
+  if (!nome) { S.erro = "Escreva seu nome."; render(); return; }
+  S.ocupado = true; S.erro = ""; render();
+  const token = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
+  try {
+    const r = await fetch(SERVIDOR + "/sala/nova", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, nome, nivel: S.nivelNovo }) });
+    if (!r.ok) throw new Error("status " + r.status);
+    const { codigo } = await r.json();
+    S.sessao = { codigo, token }; gravar("zodiac-sessao", S.sessao);
+    conectar();
+  } catch (e) {
+    S.erro = "Não consegui criar a sala. Confira a internet e tente de novo.";
+  }
+  S.ocupado = false; render();
+}
+
+function entrarSala() {
+  const codigo = S.codigoDigitado.trim().toUpperCase();
+  if (!S.nome.trim()) { S.erro = "Escreva seu nome."; render(); return; }
+  if (!/^[A-Z]{4}$/.test(codigo)) { S.erro = "O código tem 4 letras."; render(); return; }
+  const token = S.sessao && S.sessao.codigo === codigo ? S.sessao.token : (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now());
+  S.sessao = { codigo, token }; gravar("zodiac-sessao", S.sessao);
+  S.erro = "";
+  conectar();
+}
+
+/* ===== Tela acesa e vibração ===== */
+let wakeLock = null;
+async function manterTelaAcesa() {
+  if (!("wakeLock" in navigator) || !S.estado || wakeLock || document.visibilityState !== "visible") return;
+  try { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); } catch {}
+}
+function liberarTela() { if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; } }
+
+function avisarVez(antes, depois) {
+  const eraMinha = antes && antes.jogo && antes.jogo.daVez === S.voce && antes.fase === "jogo";
+  const eMinha = depois.jogo && depois.jogo.daVez === S.voce && depois.fase === "jogo";
+  if (eMinha && !eraMinha && navigator.vibrate) navigator.vibrate([120, 60, 120]);
+}
+
+/* ===== Ajudantes ===== */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function nomeDe(pid) {
+  if (pid === S.voce) return "você";
+  const p = S.estado && S.estado.jogadores.find(x => x.id === pid);
+  return p ? p.nome : "alguém";
+}
+function Nome(pid) { const n = nomeDe(pid); return n === "você" ? "Você" : n; }
+const souCriador = () => S.estado && S.estado.criador === S.voce;
+function corVar(c) { return "--cc:var(--" + c + ")"; }
+
+const SVG_LUNETA = on => '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 10l9-5 1.6 3-9 5z" fill="' + (on ? "var(--accent)" : "none") + '" stroke="' + (on ? "var(--accent)" : "var(--muted)") + '" stroke-width="1.3" stroke-linejoin="round"/><path d="M7 11.5l-1.5 3M8 11l1.5 3.5" stroke="' + (on ? "var(--accent)" : "var(--muted)") + '" stroke-width="1.3" stroke-linecap="round"/></svg>';
+const SVG_NUVEM = on => '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 12.5h7a2.5 2.5 0 0 0 .3-5A3.5 3.5 0 0 0 5 7a2.8 2.8 0 0 0-.5 5.5z" fill="' + (on ? "var(--danger)" : "none") + '" stroke="' + (on ? "var(--danger)" : "var(--muted)") + '" stroke-width="1.3"/></svg>';
+
+function descrever(r) {
+  if (!r) return "";
+  const quem = Nome(r.jogador);
+  if (r.tipo === "dica") {
+    const o = r.cor ? CONST[r.cor].nome : "número " + r.numero;
+    const alvo = r.alvo === S.voce ? "você" : nomeDe(r.alvo);
+    return quem + " deu dica para " + esc(alvo) + ": " + o + " (" + r.cartas.length + (r.cartas.length === 1 ? " carta" : " cartas") + ")";
+  }
+  const carta = CONST[r.carta.c].nome + " " + r.carta.n;
+  if (r.tipo === "acender") return r.ok ? quem + " acendeu " + carta + (r.bonus ? " e completou a constelação: +1 luneta" : "") : quem + " tentou " + carta + ", mas não era a próxima estrela: +1 nuvem";
+  return quem + " guardou " + carta + ": +1 luneta";
+}
+
+// O que o dono da carta sabe, pelas marcas visíveis.
+function saber(marcas) {
+  const sim = { c: null, n: null }, naoC = new Set(), naoN = new Set();
+  for (const m of marcas || []) {
+    if (m.cor) { if (m.sim) sim.c = m.cor; else naoC.add(m.cor); }
+    if (m.numero) { if (m.sim) sim.n = m.numero; else naoN.add(m.numero); }
+  }
+  if (!sim.c && naoC.size === 4) sim.c = CORES.find(c => !naoC.has(c));
+  if (!sim.n && naoN.size === 4) sim.n = [1, 2, 3, 4, 5].find(n => !naoN.has(n));
+  return { c: sim.c, n: sim.n, naoC: sim.c ? [] : [...naoC], naoN: sim.n ? [] : [...naoN].sort() };
+}
+
+function selValida() {
+  const j = S.estado && S.estado.jogo;
+  if (!j || S.estado.fase !== "jogo") return false;
+  const mao = j.maos[S.sel.pid];
+  return !!(mao && mao.some(x => x.id === S.sel.carta));
+}
+
+/* ===== Telas ===== */
+function topbar(titulo, extra) {
+  const naSala = !!S.sessao;
+  return '<div class="topbar">' +
+    '<button class="icon-btn" data-act="' + (naSala ? "pedir-sair" : "home") + '" aria-label="' + (naSala ? "Sair da sala" : "Voltar para a home") + '">←</button>' +
+    '<div class="brand">' + esc(titulo) + '</div>' + (extra || "") +
+    '<button class="icon-btn" data-act="regras" aria-label="Regras">?</button></div>' + confirmacoes();
+}
+
+function confirmacoes() {
+  if (S.confirmar === "sair") {
+    const jogando = S.estado && (S.estado.fase === "jogo" || S.estado.fase === "fim");
+    return '<div class="aviso" role="alertdialog"><b>Sair da sala?</b><span class="small">' +
+      (jogando ? "A partida continua guardada na sala e fica pausada até você voltar. Para voltar, use o mesmo código neste celular." : "Você pode entrar de novo pelo código.") +
+      '</span><div class="row"><button class="btn btn-ghost small" data-act="cancelar">Ficar</button><button class="btn btn-primary small" data-act="sair">Sair</button></div></div>';
+  }
+  if (S.confirmar === "recomecar") {
+    return '<div class="aviso" role="alertdialog"><b>Recomeçar a partida?</b><span class="small">A partida atual será perdida para todos. A mesa continua na mesma ordem.</span><div class="row"><button class="btn btn-ghost small" data-act="cancelar">Cancelar</button><button class="btn btn-danger small" data-act="recomecar">Recomeçar</button></div></div>';
+  }
+  if (S.confirmar === "mesa") {
+    return '<div class="aviso" role="alertdialog"><b>Organizar a mesa de novo?</b><span class="small">A partida atual será perdida e todos respondem de novo quem está à esquerda.</span><div class="row"><button class="btn btn-ghost small" data-act="cancelar">Cancelar</button><button class="btn btn-danger small" data-act="refazer-mesa">Organizar</button></div></div>';
+  }
+  return "";
+}
+
+function blocoErro() { return S.erro ? '<div class="erro" role="alert">' + esc(S.erro) + '</div>' : ""; }
+
+function telaInicio() {
+  const volta = S.sessao ? '<div class="aviso"><b>Você estava na sala ' + esc(S.sessao.codigo) + '.</b><div class="row"><button class="btn btn-primary small" data-act="reconectar">Voltar para a sala</button><button class="btn btn-ghost small" data-act="esquecer">Esquecer</button></div></div>' : "";
+  return topbar("Zodiac") +
+    '<div class="hero"><h1>Zodiac</h1><p class="muted">Acendam juntos cinco constelações sem ver as próprias cartas. Cada um no seu celular, todos na mesma sala.</p></div>' +
+    volta + blocoErro() +
+    '<div class="card-box"><label class="label" for="nome">Seu nome</label><input id="nome" data-campo="nome" maxlength="16" autocomplete="nickname" value="' + esc(S.nome) + '" placeholder="Como te chamam na mesa"></div>' +
+    '<div class="card-box"><div class="label">Entrar numa sala</div><input class="codigo" data-campo="codigo" maxlength="4" autocapitalize="characters" autocomplete="off" value="' + esc(S.codigoDigitado) + '" placeholder="ABCD" aria-label="Código da sala"><button class="btn btn-primary" data-act="entrar">Entrar</button><span class="tiny muted center">Ou leia o QR code no celular de quem criou a sala.</span></div>' +
+    '<div class="divisor">ou</div>' +
+    '<div class="card-box"><div class="label">Criar uma sala nova</div>' + seletorNivel(S.nivelNovo, "nivel-novo") +
+    '<button class="btn btn-ghost" data-act="criar"' + (S.ocupado ? " disabled" : "") + '>' + (S.ocupado ? "Criando…" : "Criar sala") + '</button></div>';
+}
+
+function seletorNivel(atual, act) {
+  return '<div class="niveis" role="radiogroup" aria-label="Nível">' + Object.entries(NIVEIS).map(([k, n]) =>
+    '<button class="nivel' + (atual === k ? " on" : "") + '" role="radio" aria-checked="' + (atual === k) + '" data-act="' + act + '" data-v="' + k + '"><span class="radio"></span><span><b>' + n.nome + (k === "normal" ? " (padrão)" : "") + '</b><span class="small muted">' + n.desc + '</span></span></button>').join("") + '</div>';
+}
+
+function telaConectando() {
+  return topbar("Zodiac") + blocoErro() + '<div class="card-box center"><b>Entrando na sala ' + esc(S.sessao.codigo) + '…</b><span class="small muted">Se demorar, confira a internet.</span></div>';
+}
+
+function telaEscolherLugar() {
+  if (S.aguardando) {
+    return topbar("Zodiac") + '<div class="card-box center"><b>Pedido enviado.</b><span class="muted">Esperando quem criou a sala liberar o lugar de ' + esc(S.aguardando) + '.</span></div>';
+  }
+  const livres = S.escolherLugar;
+  return topbar("Zodiac") + blocoErro() +
+    '<div class="card-box"><b>A partida já começou.</b><span class="small muted">Se você trocou de celular ou a página perdeu seus dados, escolha quem você é. Quem criou a sala confirma.</span>' +
+    (livres.length ? '<div class="chips">' + livres.map(p => '<button class="chip" data-act="pedir-lugar" data-v="' + p.id + '">' + esc(p.nome) + '</button>').join("") + '</div>' : '<span class="muted">Todos os lugares estão ocupados agora.</span>') +
+    '</div>';
+}
+
+function linkSala() { return location.origin + location.pathname + "?sala=" + S.estado.codigo; }
+
+function telaEspera() {
+  const st = S.estado;
+  const criador = st.jogadores.find(p => p.id === st.criador);
+  const lista = st.jogadores.map(p => '<div class="pessoa"><span class="dot' + (p.conectado ? " on" : "") + '"></span><span class="nome">' + esc(p.nome) + (p.id === S.voce ? " (você)" : "") + '</span>' +
+    (p.id === st.criador ? '<span class="tag">criou a sala</span>' : "") +
+    (souCriador() && p.id !== st.criador ? '<button class="icon-btn" data-act="remover" data-v="' + p.id + '" aria-label="Tirar ' + esc(p.nome) + ' da sala">×</button>' : "") + '</div>').join("");
+  const acoes = souCriador()
+    ? '<div class="card-box"><div class="label">Nível</div>' + seletorNivel(st.nivel, "nivel-sala") + '</div>' +
+      '<button class="btn btn-primary" data-act="organizar"' + (st.jogadores.length < 2 ? " disabled" : "") + '>' + (st.jogadores.length < 2 ? "Esperando mais gente (mínimo 2)" : "Todos chegaram: organizar a mesa") + '</button>'
+    : '<div class="card-box center"><span class="muted">Nível: <b>' + NIVEIS[st.nivel].nome + '</b>. Esperando ' + esc(criador ? criador.nome : "quem criou a sala") + ' organizar a mesa.</span></div>';
+  return topbar("Zodiac") + blocoErro() +
+    '<div class="card-box center"><div class="label">Código da sala</div><div class="codigo-grande">' + esc(st.codigo) + '</div><div class="qr" id="qr" aria-label="QR code para entrar na sala"></div>' +
+    '<button class="btn btn-ghost small" data-act="compartilhar">Mandar o link</button></div>' +
+    '<div class="card-box"><div class="label">Na sala · ' + st.jogadores.length + ' de 5</div><div class="pessoas">' + lista + '</div></div>' + acoes;
+}
+
+function textoRoda(roda) {
+  return '<div class="roda">' + roda.map(p => '<span>' + esc(Nome(p)) + '</span>').join('<span class="seta">→</span>') + '<span class="seta">→</span><span>' + esc(Nome(roda[0])) + '</span></div>';
+}
+
+function telaOrdem() {
+  const st = S.estado;
+  const minha = st.esquerda[S.voce];
+  const outros = st.jogadores.filter(p => p.id !== S.voce);
+  const rs = st.rodaStatus || { ok: false, faltam: [], conflitos: [] };
+  let status;
+  if (rs.ok) {
+    status = '<div class="card-box"><div class="label">A mesa, no sentido horário</div>' + textoRoda(rs.roda) + '</div>';
+  } else if (rs.conflitos && rs.conflitos.length) {
+    const alvos = [...new Set(rs.conflitos.map(p => st.esquerda[p]))];
+    status = '<div class="erro">' + alvos.map(a => esc(rs.conflitos.filter(p => st.esquerda[p] === a).map(Nome).join(" e ")) + ' escolheram ' + esc(nomeDe(a)) + '.').join(" ") + ' Só uma pessoa pode estar à esquerda de cada um. Confiram e respondam de novo.</div>';
+  } else if (rs.rodaQuebrada) {
+    status = '<div class="erro">A roda não fecha: parece que são duas mesas separadas. Confiram quem está à esquerda de quem.</div>';
+  } else {
+    status = '<div class="card-box small muted">Esperando: ' + esc(rs.faltam.map(Nome).join(", ")) + '</div>';
+  }
+  const pergunta = st.jogadores.length === 2 ? "" :
+    '<div class="card-box"><b>Quem está sentado à sua esquerda?</b><span class="small muted">A vez anda no sentido horário: quem está à sua esquerda joga depois de você.</span><div class="chips">' +
+    outros.map(p => '<button class="chip' + (minha === p.id ? " on" : "") + '" data-act="esquerda" data-v="' + p.id + '" aria-pressed="' + (minha === p.id) + '">' + esc(p.nome) + '</button>').join("") + '</div></div>';
+  let comecar = "";
+  if (rs.ok && souCriador()) {
+    comecar = '<div class="card-box"><b>Quem começa?</b><div class="chips">' +
+      rs.roda.map(p => '<button class="chip' + (S.primeiro === p ? " on" : "") + '" data-act="primeiro" data-v="' + p + '">' + esc(Nome(p)) + '</button>').join("") +
+      '<button class="chip' + (S.primeiro === "sortear" ? " on" : "") + '" data-act="primeiro" data-v="sortear">Sortear</button></div>' +
+      '<button class="btn btn-primary" data-act="comecar"' + (S.primeiro ? "" : " disabled") + '>Começar a partida</button></div>';
+  } else if (rs.ok) {
+    comecar = '<div class="card-box center muted">Esperando quem criou a sala escolher quem começa.</div>';
+  }
+  return topbar("Zodiac") + blocoErro() + '<div class="hero"><h1 style="font-size:32px">Organizar a mesa</h1></div>' + pergunta + status + comecar +
+    (souCriador() ? '<button class="btn btn-ghost small" data-act="voltar-espera">Voltar para a sala de espera</button>' : "");
+}
+
+function ceu(j) {
+  return '<div class="ceu">' + CORES.map(c => {
+    const n = j.acesas[c];
+    return '<div class="const' + (n === 5 ? " completa" : "") + '" style="' + corVar(c) + '"><span class="sim">' + CONST[c].sim + '</span><span class="n">' + n + '</span><span class="estrelas">' +
+      [1, 2, 3, 4, 5].map(k => '<i class="' + (k <= n ? "on" : "") + '"></i>').join("") + '</span><span class="nm">' + CONST[c].nome + '</span></div>';
+  }).join("") + '</div>';
+}
+
+function statusMesa(j) {
+  return '<div class="status">' +
+    '<div class="st" aria-label="' + j.lunetas + ' lunetas livres"><span class="icos">' + Array.from({ length: 8 }, (_, i) => SVG_LUNETA(i < j.lunetas)).join("") + '</span>' + j.lunetas + '</div>' +
+    '<div class="st' + (j.nuvens === 2 ? " alerta" : "") + '" aria-label="' + j.nuvens + ' de 3 nuvens"><span class="icos">' + [0, 1, 2].map(i => SVG_NUVEM(i < j.nuvens)).join("") + '</span>' + j.nuvens + '/3</div>' +
+    '<div class="st">Baralho ' + j.baralho + '</div>' +
+    (j.restantes != null ? '<div class="st alerta">Última volta: ' + j.restantes + '</div>' : "") +
+    '</div>';
+}
+
+function cartaFrente(x, extraCls, act, pid) {
+  const k = saber(x.marcas);
+  const sabe = S.estado.nivel === "dificil" ? "" : (k.c || k.n ? '<span class="sabe">sabe ' + (k.c ? CONST[k.c].sim : "") + (k.n || "") + '</span>' : "");
+  return '<button class="carta frente' + extraCls + '" style="' + corVar(x.c) + '" data-act="' + act + '" data-pid="' + pid + '" data-v="' + x.id + '" aria-label="' + CONST[x.c].nome + ' ' + x.n + '">' + sabe +
+    '<span class="num">' + x.n + '</span><span class="sim">' + CONST[x.c].sim + '</span></button>';
+}
+
+function cartaCostas(x, extraCls, i) {
+  const k = saber(x.marcas);
+  const estilo = k.c ? ' style="' + corVar(k.c) + '"' : "";
+  const nao = [...k.naoC.map(c => CONST[c].sim), ...k.naoN].join(" ");
+  const nota = x.nota ? '<span class="nota">' + (x.nota.c ? CONST[x.nota.c].sim : "") + (x.nota.n || "") + '?</span>' : "";
+  const rotulo = "Sua carta " + (i + 1) + (k.c ? ", " + CONST[k.c].nome : "") + (k.n ? ", número " + k.n : "");
+  return '<button class="carta costas' + (k.c || k.n ? " sabida" : "") + extraCls + '"' + estilo + ' data-act="minha" data-v="' + x.id + '" aria-label="' + rotulo + '">' + nota +
+    (k.n ? '<span class="num">' + k.n + '</span>' : (k.c ? "" : '<span class="q">?</span>')) +
+    (k.c ? '<span class="sim">' + CONST[k.c].sim + '</span>' : "") +
+    (nao ? '<span class="nao">não: ' + nao + '</span>' : "") + '</button>';
+}
+
+function telaJogo() {
+  const st = S.estado, j = st.jogo;
+  const minhaVez = j.daVez === S.voce;
+  const pausada = !!st.pausa;
+  const ult = j.ultima;
+  const marcadas = new Set(ult && ult.tipo === "dica" ? ult.cartas : []);
+  const previa = new Set();
+  if (S.sel && S.sel.tipo === "outro" && S.sel.dica) {
+    const alvo = j.maos[S.sel.pid];
+    for (const x of alvo) if (S.sel.dica.cor ? x.c === S.sel.dica.cor : x.n === S.sel.dica.numero) previa.add(x.id);
+  }
+  const iMeu = j.ordem.indexOf(S.voce);
+  const outros = j.ordem.map((_, k) => j.ordem[(iMeu + 1 + k) % j.ordem.length]).filter(p => p !== S.voce);
+
+  let pausa = "";
+  if (pausada) {
+    const faltam = st.pausa.faltam.map(nomeDe);
+    pausa = '<div class="pausa" role="status"><b>Partida pausada</b><span class="small">' +
+      (faltam.length ? "Esperando " + esc(faltam.join(", ")) + " voltar. A partida continua de onde parou quando todos estiverem conectados." : esc(st.pausa.manual) + " pausou a partida.") + '</span>' +
+      (!faltam.length || st.pausa.manual ? '<button class="btn btn-primary small" data-act="despausar">Continuar a partida</button>' : "") + '</div>';
+  }
+
+  const maosOutros = outros.map((p, k) => {
+    const pj = st.jogadores.find(x => x.id === p) || {};
+    return '<div class="mao-box' + (j.daVez === p ? " davez" : "") + '"><div class="mao-head"><span class="dot' + (pj.conectado ? " on" : "") + '"></span>' + esc(pj.nome) + (j.daVez === p ? ' <span class="tag">na vez</span>' : "") +
+      '<span class="seq">' + (k === 0 ? "joga depois de você" : (k + 1) + "º depois de você") + '</span></div>' +
+      '<div class="mao">' + j.maos[p].map(x => cartaFrente(x, (marcadas.has(x.id) ? " marcada" : "") + (previa.has(x.id) ? " previa" : "") + (S.sel && S.sel.carta === x.id ? " sel" : ""), "outro", p)).join("") + '</div>' + ordemCartas(j.maos[p].length) + '</div>';
+  }).join("");
+
+  const minhaMao = '<div class="mao-box' + (minhaVez ? " davez" : "") + '"><div class="mao-head">Sua mão<span class="seq">toque numa carta</span></div><div class="mao">' +
+    j.maos[S.voce].map((x, i) => cartaCostas(x, (marcadas.has(x.id) ? " marcada" : "") + (S.sel && S.sel.carta === x.id ? " sel" : ""), i)).join("") + '</div>' + ordemCartas(j.maos[S.voce].length) + '</div>';
+
+  const vez = '<div class="vez' + (minhaVez ? " minha" : "") + '">' + (minhaVez ? "Sua vez: dê uma dica (toque na carta de alguém), ou acenda ou guarde uma carta sua." : "Vez de " + esc(nomeDe(j.daVez))) + '</div>';
+
+  const extra = '<button class="text-btn" data-act="' + (st.pausa && st.pausa.manual ? "despausar" : "pausar") + '">' + (st.pausa && st.pausa.manual ? "▶ Voltar" : "⏸ Pausar") + '</button>' +
+    (souCriador() ? '<button class="text-btn" data-act="pedir-recomecar" aria-label="Recomeçar">↻</button>' : "");
+
+  return topbar("Zodiac", extra) + pedidosLugar() + blocoErro() + pausa + ceu(j) + statusMesa(j) +
+    (ult ? '<div class="ultima">' + descrever(ult) + '</div>' : "") + vez + maosOutros + minhaMao + extrasMesa(j) + folhaSelecao(j, minhaVez, pausada);
+}
+
+// Mão em ordem de chegada, como na mesa de verdade: a mais velha à esquerda, a nova entra à direita.
+// Etiqueta embaixo da primeira e da última carta, para ninguém depender de saber direita e esquerda.
+function ordemCartas(n) {
+  return '<div class="ordem-cartas">' + Array.from({ length: n }, (_, i) => '<span>' + (i === 0 ? "mais velha" : i === n - 1 ? "mais nova" : "") + '</span>').join("") + '</div>';
+}
+
+function extrasMesa(j) {
+  const porCor = CORES.map(c => {
+    const cartas = j.descarte.filter(x => x.c === c).sort((a, b) => a.n - b.n);
+    return cartas.length ? '<div class="linha" style="' + corVar(c) + '"><b style="color:var(--cc)">' + CONST[c].sim + '</b>' + cartas.map(x => '<span class="mini">' + x.n + '</span>').join("") + '</div>' : "";
+  }).join("");
+  const hist = j.historico.length ? '<ol class="hist">' + j.historico.map(r => '<li>' + descrever(r) + '</li>').join("") + '</ol>' : '<p class="small muted">Nada ainda.</p>';
+  const tituloHist = S.estado.nivel === "facil" ? "Histórico" : S.estado.nivel === "normal" ? "Histórico da última rodada" : "Última jogada";
+  return '<details><summary>Descarte (' + j.descarte.length + ')</summary><div class="descarte">' + (porCor || '<p class="small muted">Nenhuma carta descartada.</p>') + '</div></details>' +
+    '<details><summary>' + tituloHist + '</summary>' + hist + '</details>';
+}
+
+function pedidosLugar() {
+  const ps = S.estado.pedidos || [];
+  return ps.map(p => '<div class="aviso"><b>Um celular quer o lugar de ' + esc(p.nome) + '.</b><span class="small">Libere só se ' + esc(p.nome) + ' trocou de celular ou perdeu a página. O celular antigo sai da mesa.</span><div class="row"><button class="btn btn-ghost small" data-act="negar" data-v="' + p.id + '">Não</button><button class="btn btn-primary small" data-act="liberar" data-v="' + p.id + '">Liberar</button></div></div>').join("");
+}
+
+function folhaSelecao(j, minhaVez, pausada) {
+  if (!S.sel) return "";
+  const travado = !minhaVez || pausada;
+  let titulo, corpo;
+  if (S.sel.tipo === "outro") {
+    const x = j.maos[S.sel.pid].find(y => y.id === S.sel.carta);
+    const nome = nomeDe(S.sel.pid);
+    const qtdCor = j.maos[S.sel.pid].filter(y => y.c === x.c).length;
+    const qtdNum = j.maos[S.sel.pid].filter(y => y.n === x.n).length;
+    titulo = "Dica para " + nome;
+    const d = S.sel.dica;
+    corpo = '<p class="small muted">Escolha o que dizer. As cartas que a dica aponta aparecem com brilho branco na mesa.</p>' +
+      '<div class="row"><button class="btn ' + (d && d.cor ? "btn-primary" : "btn-ghost") + ' small" data-act="previa-cor" data-v="' + x.c + '">' + CONST[x.c].sim + ' ' + CONST[x.c].nome + ' · ' + qtdCor + '</button>' +
+      '<button class="btn ' + (d && d.numero ? "btn-primary" : "btn-ghost") + ' small" data-act="previa-num" data-v="' + x.n + '">Número ' + x.n + ' · ' + qtdNum + '</button></div>' +
+      (travado ? '<p class="small muted center">' + (pausada ? "A partida está pausada." : "Espere a sua vez para dar dica.") + '</p>' : "") +
+      (j.lunetas === 0 && !travado ? '<p class="small muted center">Sem lunetas: acenda ou guarde uma carta sua.</p>' : "") +
+      '<button class="btn btn-primary" data-act="dar-dica"' + (!d || travado || j.lunetas === 0 ? " disabled" : "") + '>Dar a dica (gasta 1 luneta)</button>';
+  } else {
+    const mao = j.maos[S.voce];
+    const i = mao.findIndex(y => y.id === S.sel.carta);
+    const x = mao[i];
+    titulo = "Sua carta " + (i + 1);
+    const anota = S.estado.nivel !== "dificil";
+    const nota = x.nota || {};
+    corpo =
+      '<div class="row"><button class="btn btn-primary" data-act="acender"' + (travado ? " disabled" : "") + '>Acender</button>' +
+      '<button class="btn btn-ghost" data-act="guardar"' + (travado || j.lunetas >= 8 ? " disabled" : "") + '>Guardar (+1 luneta)</button></div>' +
+      (travado ? '<p class="small muted center">' + (pausada ? "A partida está pausada." : "Espere a sua vez para acender ou guardar.") + '</p>' : (j.lunetas >= 8 ? '<p class="small muted center">Com as 8 lunetas livres não dá para guardar.</p>' : "")) +
+      (anota ? '<div class="label">Sua suspeita (só você vê)</div><div class="chips">' + CORES.map(c => '<button class="chip' + (nota.c === c ? " on" : "") + '" style="' + corVar(c) + '" data-act="nota-cor" data-v="' + c + '">' + CONST[c].sim + ' ' + CONST[c].nome + '</button>').join("") + '</div>' +
+        '<div class="chips">' + [1, 2, 3, 4, 5].map(n => '<button class="chip' + (nota.n === n ? " on" : "") + '" data-act="nota-num" data-v="' + n + '">' + n + '</button>').join("") +
+        (x.nota ? '<button class="chip" data-act="nota-limpar">Limpar</button>' : "") + '</div>' : '<p class="small muted">No Difícil não tem anotação: guarde na cabeça.</p>');
+  }
+  return '<div class="sheet-bg" data-act="fechar-sel"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(titulo) + '" data-stop="1"><div class="sheet-head"><h2>' + esc(titulo) + '</h2><button class="icon-btn" data-act="fechar-sel" aria-label="Fechar">×</button></div><div class="sheet-body">' + corpo + '</div></div></div>';
+}
+
+function telaFim() {
+  const st = S.estado, j = st.jogo, p = j.fim.pontos;
+  const motivo = j.fim.motivo === "nuvens" ? "Três nuvens fecharam o céu." : j.fim.motivo === "perfeito" ? "Céu perfeito: as cinco constelações completas!" : "O baralho acabou e todos jogaram a última vez.";
+  const fraseTxt = p <= 10 ? "Noite nublada" : p <= 17 ? "Dá pra ver umas estrelas" : p <= 22 ? "Céu de interior" : "Via Láctea";
+  const acoes = souCriador()
+    ? '<button class="btn btn-primary" data-act="recomecar">Jogar de novo (mesma mesa)</button><button class="btn btn-ghost" data-act="pedir-mesa">Mudar a mesa</button>'
+    : '<div class="card-box center muted">Esperando quem criou a sala começar outra partida.</div>';
+  const maos = j.ordem.map(pid => '<div class="mao-box"><div class="mao-head">' + esc(Nome(pid)) + '</div><div class="mao">' + j.maos[pid].map(x => cartaFrente(x, "", "nada", pid)).join("") + '</div></div>').join("");
+  return topbar("Zodiac") + blocoErro() + '<div class="card-box center fim"><div class="label">Pontos</div><h1>' + p + '</h1><h2>' + fraseTxt + '</h2><p class="muted">' + motivo + '</p></div>' +
+    ceu(j) + acoes + '<details><summary>Como ficaram as mãos</summary><div class="stack" style="margin-top:8px">' + maos + '</div></details>';
+}
+
+/* ===== Regras passo a passo ===== */
+const PASSOS = [
+  ["O objetivo", "Vocês jogam juntos. Acendam as cinco constelações do zodíaco, cada uma da estrela 1 até a 5, em ordem. A estrela 5 é a famosa: Antares, Aldebarã, Régulo, Spica e Pólux."],
+  ["Você não vê suas cartas", "No seu celular aparecem as cartas de todo mundo, menos as suas, que ficam de costas. Os outros sabem o que você tem, e você precisa das dicas deles."],
+  ["Na sua vez: dar uma dica", "Toque numa carta de alguém e diga uma constelação ou um número. O app aponta todas as cartas daquela pessoa que batem. Exemplo: \"Beto, estas duas são Leão\". Cada dica gasta 1 luneta, e são 8."],
+  ["Na sua vez: acender", "Toque numa carta sua e em Acender. Se ela for a próxima estrela daquela constelação, ela acende. Se não for, vira uma nuvem. Na 3ª nuvem o céu fecha e a partida acaba com 0 pontos."],
+  ["Na sua vez: guardar", "Toque numa carta sua e em Guardar. Ela vai para o descarte e o grupo ganha 1 luneta de volta. Completar uma constelação também devolve 1 luneta."],
+  ["As cartas não mudam de lugar", "Depois de acender ou guardar, você compra uma carta nova, que entra sempre à direita. A mais velha fica sempre à esquerda, de quem segura as cartas. Ninguém troca as cartas de lugar: é assim que todos sabem de quais cartas já se tem informação."],
+  ["Como acaba", "Quando o baralho acaba, cada pessoa joga mais uma vez. A nota é a soma das estrelas acesas, até 25. Não vale falar das cartas fora das dicas, fazer careta ou apontar."],
+  ["Níveis e pausa", "Fácil: o app lembra as dicas e anota o que elas descartam. Normal: lembra só as da última rodada. Difícil: nada fica anotado. Se alguém cair da internet, a partida pausa para todos e volta quando a pessoa voltar."]
+];
+function folhaRegras() {
+  if (S.regras == null) return "";
+  const k = S.regras, [t, txt] = PASSOS[k], ultimo = k === PASSOS.length - 1;
+  return '<div class="sheet-bg" data-act="regras-fechar"><div class="sheet" role="dialog" aria-modal="true" aria-label="Regras do Zodiac" data-stop="1"><div class="sheet-head"><h2>Regras</h2><button class="icon-btn" data-act="regras-fechar" aria-label="Fechar">×</button></div><div class="sheet-body">' +
+    '<div class="passo"><span class="label">Passo ' + (k + 1) + ' de ' + PASSOS.length + '</span><h3>' + t + '</h3><p>' + txt + '</p></div>' +
+    '<div class="pontos-passo">' + PASSOS.map((_, i) => '<i class="' + (i === k ? "on" : "") + '"></i>').join("") + '</div>' +
+    '<div class="row">' + (k > 0 ? '<button class="btn btn-ghost" data-act="regras-prev">Voltar</button>' : '<button class="btn btn-ghost" data-act="regras-fechar">Fechar</button>') +
+    '<button class="btn btn-primary" data-act="' + (ultimo ? "regras-fechar" : "regras-next") + '">' + (ultimo ? "Entendi" : "Próximo") + '</button></div></div></div></div>';
+}
+
+/* ===== Render ===== */
+function render() {
+  const app = document.getElementById("app");
+  const foco = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.campo : null;
+  const pos = foco ? document.activeElement.selectionStart : null;
+  let html;
+  if (!S.sessao) html = telaInicio();
+  else if (S.escolherLugar) html = telaEscolherLugar();
+  else if (!S.estado) html = telaConectando();
+  else if (S.estado.fase === "espera") html = telaEspera();
+  else if (S.estado.fase === "ordem") html = telaOrdem();
+  else if (S.estado.fase === "fim") html = telaFim();
+  else html = telaJogo();
+  const aviso = S.sessao && S.estado && S.conexao !== "on" ? '<div class="conexao" role="status">Reconectando…</div>' : "";
+  app.innerHTML = html + folhaRegras() + aviso;
+  if (foco) { const el = app.querySelector('[data-campo="' + foco + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} } }
+  const qr = document.getElementById("qr");
+  if (qr && window.QRCode) new QRCode(qr, { text: linkSala(), width: 300, height: 300, correctLevel: QRCode.CorrectLevel.M });
+  document.title = S.estado ? "Zodiac · " + S.estado.codigo : "Zodiac";
+}
+
+/* ===== Ações ===== */
+document.addEventListener("input", e => {
+  const c = e.target.dataset.campo;
+  if (c === "nome") { S.nome = e.target.value; gravar("zodiac-nome", S.nome); }
+  if (c === "codigo") { S.codigoDigitado = e.target.value.toUpperCase().replace(/[^A-Z]/g, ""); e.target.value = S.codigoDigitado; }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.dataset && e.target.dataset.campo === "codigo") entrarSala();
+  if (e.key === "Escape") { S.sel = null; S.regras = null; S.confirmar = null; render(); }
+});
+
+document.addEventListener("click", e => {
+  const alvo = e.target.closest("[data-act]");
+  if (!alvo) return;
+  if (alvo.classList.contains("sheet-bg") && e.target.closest("[data-stop]")) return;
+  const act = alvo.dataset.act, v = alvo.dataset.v;
+  const j = S.estado && S.estado.jogo;
+  switch (act) {
+    case "home": location.href = "../"; return;
+    case "regras": S.regras = 0; break;
+    case "regras-next": S.regras++; break;
+    case "regras-prev": S.regras--; break;
+    case "regras-fechar": S.regras = null; break;
+    case "nivel-novo": S.nivelNovo = v; gravar("zodiac-nivel", v); break;
+    case "criar": criarSala(); return;
+    case "entrar": entrarSala(); return;
+    case "reconectar": S.erro = ""; tentativas = 0; conectar(); return;
+    case "esquecer": esquecerSala(""); return;
+    case "pedir-sair": S.confirmar = "sair"; break;
+    case "cancelar": S.confirmar = null; break;
+    case "sair":
+      if (S.estado && S.estado.fase === "espera" && !souCriador()) enviar({ t: "sair" });
+      if (S.estado && S.estado.fase === "espera" && !souCriador()) { esquecerSala(""); return; }
+      // Na partida, guardamos a sessão para voltar depois; só fechamos a conexão.
+      saindo = true; if (ws) ws.close(); ws = null; S.estado = null; S.confirmar = null; S.conexao = "off"; liberarTela();
+      location.href = "../"; return;
+    case "compartilhar": {
+      const url = linkSala();
+      if (navigator.share) navigator.share({ title: "Zodiac", text: "Entra na sala " + S.estado.codigo + " do Zodiac", url }).catch(() => {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => { S.erro = ""; alvo.textContent = "Link copiado"; }).catch(() => {});
+      return;
+    }
+    case "pedir-lugar": enviar({ t: "pedirLugar", lugar: v, token: S.sessao.token }); return;
+    case "nivel-sala": enviar({ t: "nivel", nivel: v }); return;
+    case "remover": enviar({ t: "remover", pid: v }); return;
+    case "organizar": S.primeiro = null; enviar({ t: "organizar" }); return;
+    case "esquerda": enviar({ t: "esquerda", pid: v }); return;
+    case "primeiro": S.primeiro = v; break;
+    case "comecar": enviar({ t: "comecar", primeiro: S.primeiro }); return;
+    case "voltar-espera": enviar({ t: "voltarEspera" }); return;
+    case "pausar": enviar({ t: "pausar", on: true }); return;
+    case "despausar": enviar({ t: "pausar", on: false }); return;
+    case "pedir-recomecar": S.confirmar = "recomecar"; break;
+    case "recomecar": S.confirmar = null; S.sel = null; enviar({ t: "recomecar" }); break;
+    case "pedir-mesa": S.confirmar = "mesa"; break;
+    case "refazer-mesa": S.confirmar = null; S.primeiro = null; enviar({ t: "refazerMesa" }); break;
+    case "liberar": enviar({ t: "devolver", pedido: v, sim: true }); return;
+    case "negar": enviar({ t: "devolver", pedido: v, sim: false }); return;
+    case "outro": S.sel = { tipo: "outro", pid: alvo.dataset.pid, carta: Number(v), dica: null }; break;
+    case "minha": S.sel = { tipo: "minha", pid: S.voce, carta: Number(v) }; break;
+    case "fechar-sel": S.sel = null; break;
+    case "previa-cor": S.sel.dica = { cor: v }; break;
+    case "previa-num": S.sel.dica = { numero: Number(v) }; break;
+    case "dar-dica": enviar({ t: "jogada", acao: { tipo: "dica", alvo: S.sel.pid, ...S.sel.dica } }); S.sel = null; break;
+    case "acender": enviar({ t: "jogada", acao: { tipo: "acender", carta: S.sel.carta } }); S.sel = null; break;
+    case "guardar": enviar({ t: "jogada", acao: { tipo: "guardar", carta: S.sel.carta } }); S.sel = null; break;
+    case "nota-cor": case "nota-num": case "nota-limpar": {
+      const x = j.maos[S.voce].find(y => y.id === S.sel.carta);
+      const n = { ...(x.nota || { c: null, n: null }) };
+      if (act === "nota-cor") n.c = n.c === v ? null : v;
+      if (act === "nota-num") n.n = n.n === Number(v) ? null : Number(v);
+      if (act === "nota-limpar") { n.c = null; n.n = null; }
+      x.nota = n.c || n.n ? n : null;
+      enviar({ t: "jogada", acao: { tipo: "anotar", carta: x.id, c: n.c, n: n.n } });
+      break;
+    }
+    case "nada": return;
+  }
+  render();
+});
+
+render();
+if (S.sessao) conectar();
+if ("serviceWorker" in navigator && !LOCAL) navigator.serviceWorker.register("../sw.js").catch(() => {});
+</script>
+</body>
+</html>
