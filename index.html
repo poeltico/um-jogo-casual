@@ -527,12 +527,12 @@ function tick() {
 
 function marcar(tipo, quem) {
   const g = S.game, m = g.marks;
-  if (tipo === "artist") { m.artist = quem || true; S.choose = null; beep(1200, 0.08); salvar(); render(); return; }
-  if (tipo === "title") {
-    m.title = quem || true;
-    if (!emTimes(g)) m.singerPts = valorCantor(g);
-    beep(1320, 0.1, 2); terminar("titulo");
-  }
+  if (tipo === "artist") m.artist = quem || true;
+  if (tipo === "title") { m.title = quem || true; if (!emTimes(g)) m.singerPts = valorCantor(g); }
+  S.choose = null;
+  // O tempo continua correndo até acertarem os dois ou o tempo acabar.
+  if (m.artist && m.title) { beep(1320, 0.1, 2); terminar("ambos"); return; }
+  beep(1200, 0.08); salvar(); render();
 }
 function terminar(motivo) {
   pararRelogio(); const g = S.game; g.marks.fim = motivo; S.choose = null; S.screen = "result"; salvar(); render();
@@ -576,9 +576,9 @@ const REGRAS = [
   ["preparacao", "Preparação", "<ul><li>Escolham o modo: Clássico, Uma vez por time ou Corrida.</li><li>No Clássico e no Uma vez por time, montem times de pelo menos 2 pessoas. Na Corrida, cada um joga por si (mínimo 3 pessoas).</li><li>Com mais de 15 pessoas, o app sugere Uma vez por time.</li><li>Um celular só passa de mão em mão. A carta só aparece quando o cantor toca para ver.</li></ul>"],
   ["carta", "A carta", "<ul><li>Só o cantor olha a carta.</li><li>Ela traz 3 músicas normais e 1 música Desafio, que vale o dobro.</li><li>Cada música mostra título, artista e um trecho da letra para lembrar a melodia.</li><li>O cantor escolhe uma e toca em Começar.</li></ul>"],
   ["cantar", "Cantando", "<ul><li>São " + TEMPO + " segundos. O celular apita quando faltam " + AVISO + ".</li><li>Vale: hum, nanana, tururu, assobiar e bater o ritmo.</li><li>Não vale: falar qualquer palavra (em qualquer língua) nem apontar para coisas.</li><li>Nos últimos " + AVISO + " segundos, pode dançar a coreografia da música.</li><li>Se o cantor falar ou apontar, a música vale zero e a vez passa.</li></ul>"],
-  ["pontos", "Pontos", "<ul><li>Acertou o artista: " + PTS_ARTISTA + " pontos. Acertou o título: " + PTS_TITULO + " pontos. Os dois: " + (PTS_ARTISTA + PTS_TITULO) + ".</li><li>Música Desafio: tudo em dobro (6, 10 ou 16).</li><li>Depois de acertar o artista, o time pode continuar tentando o título até o tempo acabar.</li><li>Título vale sem artigos (\"Garota de Ipanema\" vale para \"A Garota de Ipanema\") e sem a parte entre parênteses. Meio título não vale.</li></ul>"],
+  ["pontos", "Pontos", "<ul><li>Acertou o artista: " + PTS_ARTISTA + " pontos. Acertou o título: " + PTS_TITULO + " pontos. Os dois: " + (PTS_ARTISTA + PTS_TITULO) + ".</li><li>Música Desafio: tudo em dobro (6, 10 ou 16).</li><li>O tempo continua correndo depois de um acerto: só para quando acertarem artista e título, ou quando os ' + TEMPO + ' segundos acabarem.</li><li>Título vale sem artigos (\"Garota de Ipanema\" vale para \"A Garota de Ipanema\") e sem a parte entre parênteses. Meio título não vale.</li></ul>"],
   ["vez", "De quem é a vez", "<ul><li>Clássico: se o time acertou o artista ou o título, continua jogando. A próxima pessoa do mesmo time canta uma carta nova, com " + TEMPO + " segundos novos. Sem limite de músicas seguidas.</li><li>Se o tempo acabar sem acerto, ou o cantor falar, a vez passa para o próximo time.</li><li>Uma vez por time: a vez sempre passa, mesmo com acerto.</li></ul>"],
-  ["corrida", "Modo Corrida", "<ul><li>Cada um por si. O cantor canta para todos.</li><li>Quem acerta ganha como no Clássico: " + PTS_ARTISTA + " pelo artista e " + PTS_TITULO + " pelo título. Podem ser pessoas diferentes.</li><li>O cantor começa valendo " + CORRIDA_INICIO + " pontos e perde 1 a cada 5 segundos. Ele ganha o que estiver valendo quando alguém acertar o título.</li><li>Depois, o celular vai para a próxima pessoa da lista.</li></ul>"],
+  ["corrida", "Modo Corrida", "<ul><li>Cada um por si. O cantor canta para todos.</li><li>Quem acerta ganha como no Clássico: " + PTS_ARTISTA + " pelo artista e " + PTS_TITULO + " pelo título. Podem ser pessoas diferentes.</li><li>O cantor começa valendo " + CORRIDA_INICIO + " pontos e perde 1 a cada 5 segundos. Ele ganha o que estiver valendo no momento em que alguém acerta o título.</li><li>Depois, o celular vai para a próxima pessoa da lista.</li></ul>"],
   ["fim", "Fim de jogo", "<p>Quem chegar a " + META + " pontos primeiro vence, na hora.</p>"]
 ];
 function secaoAtual() {
@@ -708,25 +708,25 @@ function telaCantar() {
   }
   const quemTxt = v => (v && v !== true ? " · " + esc(v) : "");
   return topbar("Pabla") +
-    dica(emTimes(g) ? "<b>Cantarole!</b> O time grita palpites. Quando acertarem, toque no botão certo." : "<b>Cantarole para todos!</b> Quando alguém acertar, toque no botão e escolha quem foi.") +
+    dica(emTimes(g) ? "<b>Cantarole!</b> O time grita palpites. Toque em cada acerto; o tempo só para quando acertarem artista e título." : "<b>Cantarole para todos!</b> Quando alguém acertar, toque no botão e escolha quem foi.") +
     '<div class="stage" id="stage"><div class="now-song">Cantando <b>' + esc(song[0]) + '</b> · ' + esc(song[1]) + (x > 1 ? " · Desafio ×2" : "") + '</div>' +
       '<div class="ring"><svg viewBox="0 0 190 190"><circle class="track" cx="95" cy="95" r="84" fill="none" stroke-width="14"/><circle class="prog" id="timer-prog" cx="95" cy="95" r="84" fill="none" stroke-width="14" stroke-linecap="round" style="stroke-dasharray:' + c + ';stroke-dashoffset:0"/></svg><div class="num" id="timer-num">' + TEMPO + '</div></div>' +
       '<div class="dance-msg" id="dance-msg" hidden>Últimos ' + AVISO + ' s: coreografia liberada!</div>' +
       (!emTimes(g) ? '<div class="singer-val">Cantor vale agora: <span id="singer-val">' + valorCantor(g) + '</span></div>' : "") +
-      '<div class="marks"><span class="mark' + (m.artist ? " ok" : "") + '">Artista' + (m.artist ? " ✓" + quemTxt(m.artist) : "") + '</span><span class="mark">Título</span></div>' +
+      '<div class="marks"><span class="mark' + (m.artist ? " ok" : "") + '">Artista' + (m.artist ? " ✓" + quemTxt(m.artist) : "") + '</span><span class="mark' + (m.title ? " ok" : "") + '">Título' + (m.title ? " ✓" + quemTxt(m.title) : "") + '</span></div>' +
       chooser +
     '</div>' +
     (S.choose ? "" :
     '<div class="stack">' +
-      '<button class="btn btn-ok" data-act="acertou-titulo">Acertaram o título · +' + PTS_TITULO * x + '</button>' +
-      (!m.artist ? '<button class="btn btn-ghost" data-act="acertou-artista">Acertaram o artista · +' + PTS_ARTISTA * x + '</button>' : "") +
-      '<div class="row"><button class="btn btn-warn" data-act="falou">Falou ou apontou</button><button class="btn btn-ghost" data-act="desistir">Desistir</button></div>' +
+      (!m.title ? '<button class="btn btn-ok" data-act="acertou-titulo">Acertaram o título · +' + PTS_TITULO * x + '</button>' : "") +
+      (!m.artist ? '<button class="btn ' + (m.title ? "btn-ok" : "btn-ghost") + '" data-act="acertou-artista">Acertaram o artista · +' + PTS_ARTISTA * x + '</button>' : "") +
+      '<div class="row"><button class="btn btn-warn" data-act="falou">Falou ou apontou</button><button class="btn btn-ghost" data-act="desistir">' + (m.artist || m.title ? "Encerrar" : "Desistir") + '</button></div>' +
     '</div>');
 }
 
 function telaResultado() {
   const g = S.game, m = g.marks, song = musica(g, g.pick), pts = pontosDaMusica(g), x = mult(g);
-  const titulo = m.falou ? "Falou! Zero pontos." : m.title ? "Acertaram!" : m.artist ? "Acertaram o artista" : "Acabou o tempo";
+  const titulo = m.falou ? "Falou! Zero pontos." : m.title && m.artist ? "Acertaram tudo!" : m.title ? "Acertaram o título" : m.artist ? "Acertaram o artista" : "Acabou o tempo";
   const extra = emTimes(g) && m.title && !m.artist && !m.falou ? '<button class="btn btn-ghost" data-act="tambem-artista">Também disseram o artista · +' + PTS_ARTISTA * x + '</button>' : "";
   const extraCorrida = !emTimes(g) && m.title && !m.artist && !m.falou ? '<button class="btn btn-ghost" data-act="escolher-artista">Alguém disse o artista? · +' + PTS_ARTISTA * x + '</button>' : "";
   let proximo = "";
