@@ -433,7 +433,7 @@ function setupPadrao() {
   ], players: "" };
 }
 
-let S = { screen: "menu", open: true, rules: null, tut: 0, tutNext: null, err: "", choose: null, exitAsk: false, setup: setupPadrao(), game: null };
+let S = { screen: "menu", open: "pabla", rules: null, tut: 0, tutNext: null, err: "", choose: null, exitAsk: false, setup: setupPadrao(), game: null };
 let ticker = null;
 
 function salvar() { store.set("pabla.setup", S.setup); if (S.game) store.set("pabla.game", S.game); else store.del("pabla.game"); }
@@ -610,22 +610,41 @@ function placar(g, compacto) {
     '<div class="score-row"><div class="name"><span>' + esc(p.name) + '</span></div><div class="pts">' + p.score + ' / ' + META + '</div><div class="bar"><i style="width:' + Math.min(100, p.score / META * 100) + '%"></i></div></div>').join("") + '</div>';
 }
 
+/* ===== Jogos da home =====
+   Para adicionar um jogo novo, acrescente um item nesta lista.
+   "acao" é o que o botão Jogar dispara; "pronto: false" mostra o jogo como Em breve. */
+const JOGOS = [
+  {
+    id: "pabla", nome: "Pabla", logo: LOGO, sub: "Música · em times", pronto: true,
+    resumo: "Cantarole uma música sem palavras e faça seu time adivinhar.",
+    pessoas: "4 ou mais", idade: "10+", tipo: "Festa, música", duracao: "20 a 40 min",
+    acao: "preparar", tutorial: "tutorial"
+  }
+];
+
+function cartaoJogo(j) {
+  const aberto = S.open === j.id;
+  return '<div class="game-card' + (aberto ? " open" : "") + '">' +
+    '<button class="game-head" data-act="toggle" data-v="' + j.id + '" aria-expanded="' + aberto + '"><div class="logo">' + j.logo + '</div><div><h2>' + esc(j.nome) + '</h2><span class="muted small">' + esc(j.sub) + '</span></div><span class="chev">▾</span></button>' +
+    (aberto ? '<div class="facts">' +
+      '<div class="fact wide"><div class="label">Resumo</div><div class="v">' + esc(j.resumo) + '</div></div>' +
+      '<div class="fact"><div class="label">Pessoas</div><div class="v">' + esc(j.pessoas) + '</div></div>' +
+      '<div class="fact"><div class="label">Idade</div><div class="v">' + esc(j.idade) + '</div></div>' +
+      '<div class="fact"><div class="label">Tipo</div><div class="v">' + esc(j.tipo) + '</div></div>' +
+      '<div class="fact"><div class="label">Duração</div><div class="v">' + esc(j.duracao) + '</div></div>' +
+      '</div><div class="game-actions">' + (j.pronto
+        ? '<button class="btn btn-primary" data-act="' + j.acao + '">Jogar ' + esc(j.nome) + '</button>' + (j.tutorial ? '<button class="btn btn-ghost" data-act="' + j.tutorial + '">Como jogar (1 min)</button>' : "")
+        : '<span class="pill">Em breve</span>') + '</div>' : "") +
+  '</div>';
+}
+
 function telaMenu() {
   const g = S.game;
   const resume = g && g.winner == null ? '<div class="resume"><b>Tem uma partida de Pabla em andamento.</b><div class="row"><button class="btn btn-primary" data-act="continuar">Continuar</button><button class="btn btn-ghost" data-act="descartar">Descartar</button></div></div>' : "";
   return topbar("Um Jogo Casual") +
-    '<div class="hello"><h1>Bora jogar?</h1><p class="muted">Jogos para a turma, todo mundo na mesma sala.</p></div>' + resume +
-    '<div class="game-card' + (S.open ? " open" : "") + '">' +
-      '<button class="game-head" data-act="toggle" aria-expanded="' + S.open + '"><div class="logo">' + LOGO + '</div><div><h2>Pabla</h2><span class="muted small">Música · em times</span></div><span class="chev">▾</span></button>' +
-      (S.open ? '<div class="facts">' +
-        '<div class="fact wide"><div class="label">Resumo</div><div class="v">Cantarole uma música sem palavras e faça seu time adivinhar.</div></div>' +
-        '<div class="fact"><div class="label">Pessoas</div><div class="v">4 ou mais</div></div>' +
-        '<div class="fact"><div class="label">Idade</div><div class="v">10+</div></div>' +
-        '<div class="fact"><div class="label">Tipo</div><div class="v">Festa, música</div></div>' +
-        '<div class="fact"><div class="label">Duração</div><div class="v">20 a 40 min</div></div>' +
-        '</div><div class="game-actions"><button class="btn btn-primary" data-act="preparar">Jogar Pabla</button><button class="btn btn-ghost" data-act="tutorial">Como jogar (1 min)</button></div>' : "") +
-    '</div>' +
-    '<div class="soon"><b>Mais jogos em breve.</b><br><span class="small">Os próximos entram aqui no menu, com o mesmo cartão.</span></div>';
+    '<div class="hello"><h1>Bora jogar?</h1><p class="muted">Escolha um jogo. Todo mundo na mesma sala.</p></div>' + resume +
+    '<div class="section"><div class="label">Jogos · ' + JOGOS.filter(j => j.pronto).length + '</div><div class="stack">' + JOGOS.map(cartaoJogo).join("") + '</div></div>' +
+    '<div class="soon"><b>Mais jogos em breve.</b><br><span class="small">Cada jogo novo entra nesta lista.</span></div>';
 }
 
 function telaSetup() {
@@ -781,7 +800,7 @@ document.getElementById("app").addEventListener("click", e => {
   if (el.classList.contains("sheet-bg") && e.target.closest("[data-stop]")) return;
   const a = el.dataset.act, g = S.game;
   switch (a) {
-    case "toggle": S.open = !S.open; break;
+    case "toggle": S.open = S.open === el.dataset.v ? null : el.dataset.v; break;
     case "preparar": S.err = ""; S.screen = "setup"; break;
     case "tutorial": S.tut = 0; S.tutNext = "menu"; S.screen = "tutorial"; break;
     case "tut-next": S.tut++; break;
