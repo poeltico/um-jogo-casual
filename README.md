@@ -24,7 +24,7 @@ O plano completo do jogo está no documento do projeto.
 | `manifest.webmanifest` | Nome, cores e ícones para instalar na tela inicial |
 | `sw.js` | Guarda o app no aparelho para abrir sem internet |
 | `icons/` | Ícones do app |
-| `scripts/build-worker.mjs` | Gera o Worker que publica o app no Cloudflare |
+| `_headers` | Regras de cache do Cloudflare Pages |
 
 ## Músicas
 
@@ -33,10 +33,9 @@ Cada música é `[título, artista, trecho da letra]`, com no máximo uma ou dua
 
 ## Publicar
 
-O app é servido por um Cloudflare Worker que carrega os arquivos acima.
+O app está no Cloudflare Pages: https://um-jogo-casual.pages.dev
 
-```bash
-node scripts/build-worker.mjs   # gera dist/worker.js
-```
+Cada envio para a branch `main` publica sozinho, sem etapa de build (os arquivos da raiz são servidos como estão).
+Branches diferentes de `main` ganham um link de prévia próprio.
 
-Depois de mudar algum arquivo, aumente `VERSAO` em `sw.js` para os celulares baixarem a versão nova.
+Depois de mudar algum arquivo do app, aumente `VERSAO` em `sw.js` para os celulares baixarem a versão nova.
