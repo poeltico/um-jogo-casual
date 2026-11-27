@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Jogo Casual">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Um Jogo Casual</title>
+<meta name="theme-color" content="#E8336D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Layout: uma coluna estreita de celular; cada tela é um "palco" com barra de dica no topo e ação principal embaixo. */
+:root {
+  --bg: #F3F2FA;
+  --surface: #FFFFFF;
+  --ink: #1D1B3A;
+  --muted: #64628A;
+  --line: #DEDCEE;
+  --accent: #E8336D;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #FDE2EB;
+  --warn: #F5B700;
+  --warn-soft: #FFF3C9;
+  --ok: #129A6B;
+  --ok-soft: #DDF4EA;
+  --stripe-1: #E3F4F4;
+  --stripe-2: #E8EEFC;
+  --stripe-3: #EFEAFC;
+  --t-coral: #F0544F;
+  --t-mar: #0E9C9C;
+  --t-sol: #D99A00;
+  --t-uva: #6C5AD0;
+  --t-lima: #4E9A22;
+  --t-ceu: #2A86E0;
+  --display: "Bagel Fat One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141329; --surface: #1F1D3B; --ink: #F1F0FF; --muted: #A6A4CA; --line: #34315B;
+    --accent: #FF5C8E; --accent-ink: #1A0710; --accent-soft: #4A1D31;
+    --warn: #FFCC3D; --warn-soft: #4A3A08; --ok: #3CCB95; --ok-soft: #123A2C;
+    --stripe-1: #173638; --stripe-2: #1C2847; --stripe-3: #2A2350;
+    --t-coral: #FF7A74; --t-mar: #2FC4C4; --t-sol: #F2B92E; --t-uva: #9C8CFF; --t-lima: #7BC74A; --t-ceu: #5AA8F5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141329; --surface: #1F1D3B; --ink: #F1F0FF; --muted: #A6A4CA; --line: #34315B;
+  --accent: #FF5C8E; --accent-ink: #1A0710; --accent-soft: #4A1D31;
+  --warn: #FFCC3D; --warn-soft: #4A3A08; --ok: #3CCB95; --ok-soft: #123A2C;
+  --stripe-1: #173638; --stripe-2: #1C2847; --stripe-3: #2A2350;
+  --t-coral: #FF7A74; --t-mar: #2FC4C4; --t-sol: #F2B92E; --t-uva: #9C8CFF; --t-lima: #7BC74A; --t-ceu: #5AA8F5;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+#app { max-width: 540px; margin: 0 auto; padding-block: 12px 32px; display: flex; flex-direction: column; gap: 16px; min-height: 100%; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+input, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; box-sizing: border-box; }
+textarea { resize: vertical; min-height: 48px; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+
+/* Botões */
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 20px; border-radius: 16px; font-weight: 700; font-size: 17px; width: 100%; box-sizing: border-box; transition: transform .08s ease; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { background: var(--surface); border: 1.5px solid var(--line); }
+.btn-ok { background: var(--ok); color: #fff; }
+.btn-warn { background: var(--warn-soft); color: var(--ink); border: 1.5px solid var(--warn); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+
+/* Barra superior */
+.topbar { display: flex; align-items: center; gap: 8px; }
+.topbar .brand { font-family: var(--display); font-size: 22px; flex: 1; min-width: 0; color: var(--accent); }
+.icon-btn { width: 44px; height: 44px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); display: grid; place-items: center; font-weight: 700; font-size: 18px; flex: none; }
+.tip { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px; font-size: 15px; display: flex; gap: 10px; align-items: flex-start; }
+.tip b { color: var(--accent); }
+.tip .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-top: 7px; flex: none; }
+
+/* Menu */
+.hello h1 { font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1.05; }
+.game-card { background: var(--surface); border-radius: 22px; border: 1.5px solid var(--line); overflow: hidden; }
+.game-head { display: flex; gap: 14px; align-items: center; padding: 16px; width: 100%; text-align: left; }
+.logo { width: 64px; height: 64px; border-radius: 18px; background: var(--accent); display: grid; place-items: center; flex: none; }
+.logo svg { width: 44px; height: 44px; }
+.game-head h2 { font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1; }
+.game-head .chev { margin-left: auto; font-size: 20px; transition: transform .2s; }
+.game-card.open .chev { transform: rotate(180deg); }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 16px; }
+.fact { background: var(--bg); border-radius: 14px; padding: 10px 12px; }
+.fact .v { font-weight: 700; }
+.fact.wide { grid-column: 1 / -1; }
+.game-actions { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.soon { border: 1.5px dashed var(--line); border-radius: 22px; padding: 16px; color: var(--muted); }
+.resume { background: var(--accent-soft); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Preparação */
+.section { display: flex; flex-direction: column; gap: 10px; }
+.modes { display: flex; flex-direction: column; gap: 8px; }
+.mode { text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+.mode .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); flex: none; margin-top: 2px; display: grid; place-items: center; }
+.mode.on { border-color: var(--accent); }
+.mode.on .radio { border-color: var(--accent); }
+.mode.on .radio::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.mode b { display: block; }
+.team { background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 8px; border-left: 8px solid var(--tc); }
+.team-top { display: flex; gap: 8px; align-items: center; }
+.team-top input { font-weight: 700; }
+.swatch { width: 14px; height: 14px; border-radius: 50%; background: var(--tc); flex: none; }
+.notice { background: var(--warn-soft); border: 1.5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.error { background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; font-weight: 500; }
+.pack { display: flex; justify-content: space-between; gap: 12px; align-items: center; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.pack.off { opacity: .55; }
+.pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--bg); white-space: nowrap; }
+.pill.on { background: var(--ok-soft); color: var(--ok); }
+
+/* Placar */
+.board { display: flex; flex-direction: column; gap: 8px; }
+.score-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; }
+.score-row .name { font-weight: 700; display: flex; gap: 8px; align-items: center; min-width: 0; }
+.score-row .name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score-row .pts { font-variant-numeric: tabular-nums; font-weight: 700; }
+.bar { grid-column: 1 / -1; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--tc, var(--accent)); border-radius: 99px; }
+
+/* Passar o celular */
+.handoff { background: var(--surface); border-radius: 24px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; text-align: center; border-top: 10px solid var(--tc, var(--accent)); }
+.handoff .who { font-family: var(--display); font-weight: 400; font-size: 40px; line-height: 1.05; word-break: break-word; }
+
+/* Carta */
+.card { background: var(--surface); border-radius: 24px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1.5px solid var(--line); }
+.song { text-align: left; border-radius: 16px; padding: 14px 14px 14px 16px; display: flex; flex-direction: column; gap: 2px; border: 2.5px solid transparent; position: relative; }
+.song:nth-child(1) { background: var(--stripe-1); }
+.song:nth-child(2) { background: var(--stripe-2); }
+.song:nth-child(3) { background: var(--stripe-3); }
+.song.desafio { background: var(--accent-soft); }
+.song.sel { border-color: var(--accent); }
+.song .t { font-weight: 700; font-size: 18px; line-height: 1.2; padding-right: 64px; }
+.song .a { font-size: 14px; color: var(--muted); }
+.song .l { font-style: italic; font-size: 15px; margin-top: 4px; }
+.song .tag { position: absolute; top: 12px; right: 12px; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--surface); }
+.song.desafio .tag { background: var(--accent); color: var(--accent-ink); }
+
+/* Cantando */
+.stage { background: var(--surface); border-radius: 24px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; border: 1.5px solid var(--line); transition: background .3s; }
+.stage.dance { background: var(--warn-soft); border-color: var(--warn); }
+.ring { position: relative; width: 190px; height: 190px; max-width: 100%; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .track { stroke: var(--line); }
+.ring .prog { stroke: var(--accent); transition: stroke-dashoffset .25s linear; }
+.stage.dance .ring .prog { stroke: var(--warn); }
+.ring .num { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-size: 64px; font-variant-numeric: tabular-nums; }
+.now-song { font-size: 14px; color: var(--muted); }
+.now-song b { color: var(--ink); }
+.dance-msg { font-weight: 700; }
+.marks { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.mark { padding: 6px 12px; border-radius: 99px; background: var(--bg); font-weight: 700; font-size: 14px; }
+.mark.ok { background: var(--ok-soft); color: var(--ok); }
+.singer-val { font-weight: 700; font-size: 18px; }
+.chooser { background: var(--bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip { padding: 10px 14px; border-radius: 99px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; }
+
+/* Resultado e vitória */
+.result { background: var(--surface); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: center; border: 1.5px solid var(--line); }
+.big { font-family: var(--display); font-size: 56px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.answer { background: var(--bg); border-radius: 14px; padding: 12px; }
+.win { text-align: center; display: flex; flex-direction: column; gap: 12px; padding-block: 12px; }
+.win h1 { font-family: var(--display); font-weight: 400; font-size: 44px; line-height: 1.05; color: var(--tc, var(--accent)); word-break: break-word; }
+.log { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.log div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.log div span:last-child { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+
+/* Tutorial */
+.tut { background: var(--surface); border-radius: 24px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; border: 1.5px solid var(--line); }
+.tut .step { font-weight: 700; color: var(--accent); }
+.tut h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.05; }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); width: 22px; border-radius: 99px; }
+
+/* Regras */
+.sheet-bg { position: fixed; inset: 0; background: rgba(10, 8, 30, .5); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--bg); width: 100%; max-width: 560px; max-height: 88%; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; box-sizing: border-box; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sheet-head { display: flex; align-items: center; gap: 10px; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); }
+.sheet-head h2 { font-family: var(--display); font-weight: 400; font-size: 24px; flex: 1; }
+.sheet-body { overflow-y: auto; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 4px; }
+.rule { padding: 12px 14px; border-radius: 14px; scroll-margin-top: 8px; }
+.rule h3 { font-size: 17px; margin-bottom: 4px; }
+.rule ul { margin: 4px 0 0; padding-left: 20px; }
+.rule.here { background: var(--accent-soft); }
+.rule.here h3::after { content: "  · você está aqui"; font-size: 12px; color: var(--accent); }
+
+.confirm { background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ===== Pacote Base de músicas =====
+   Formato: [título, artista, trecho da letra (1 ou 2 frases)].
+   "normal" = Billions Club do Spotify + clássicos populares do Brasil (lista provisória, a revisar).
+   "desafio" = músicas menos óbvias, valem o dobro. */
+const PACOTE_BASE = {
+  normal: [
+    ["Blinding Lights", "The Weeknd", "I said, ooh, I'm blinded by the lights"],
+    ["Shape of You", "Ed Sheeran", "I'm in love with the shape of you"],
+    ["Someone You Loved", "Lewis Capaldi", "I let my guard down and then you pulled the rug"],
+    ["Dance Monkey", "Tones and I", "Dance for me, dance for me, dance for me, oh-oh-oh"],
+    ["Sunflower", "Post Malone e Swae Lee", "You're the sunflower"],
+    ["One Dance", "Drake", "Grips on your waist, front way, back way"],
+    ["Closer", "The Chainsmokers e Halsey", "We ain't ever getting older"],
+    ["Believer", "Imagine Dragons", "Pain! You made me a, you made me a believer"],
+    ["Perfect", "Ed Sheeran", "Baby, I'm dancing in the dark with you between my arms"],
+    ["Señorita", "Shawn Mendes e Camila Cabello", "I love it when you call me señorita"],
+    ["bad guy", "Billie Eilish", "I'm the bad guy, duh"],
+    ["Watermelon Sugar", "Harry Styles", "Watermelon sugar high"],
+    ["Bohemian Rhapsody", "Queen", "Is this the real life? Is this just fantasy?"],
+    ["Smells Like Teen Spirit", "Nirvana", "Here we are now, entertain us"],
+    ["Mr. Brightside", "The Killers", "Coming out of my cage and I've been doing just fine"],
+    ["Thinking Out Loud", "Ed Sheeran", "Darling, I will be loving you 'til we're seventy"],
+    ["Havana", "Camila Cabello", "Havana, ooh na-na, half of my heart is in Havana"],
+    ["Despacito", "Luis Fonsi e Daddy Yankee", "Despacito, quiero respirar tu cuello despacito"],
+    ["Uptown Funk", "Mark Ronson e Bruno Mars", "Don't believe me, just watch"],
+    ["Counting Stars", "OneRepublic", "Lately I've been, I've been losing sleep"],
+    ["Let Her Go", "Passenger", "Only know you love her when you let her go"],
+    ["Riptide", "Vance Joy", "Lady, running down to the riptide"],
+    ["Take On Me", "a-ha", "Take on me, take me on"],
+    ["Billie Jean", "Michael Jackson", "Billie Jean is not my lover"],
+    ["Every Breath You Take", "The Police", "Every breath you take, every move you make"],
+    ["Sweet Child O' Mine", "Guns N' Roses", "Oh, sweet child o' mine"],
+    ["In the End", "Linkin Park", "I tried so hard and got so far"],
+    ["Numb", "Linkin Park", "I've become so numb, I can't feel you there"],
+    ["Viva La Vida", "Coldplay", "I used to rule the world"],
+    ["Yellow", "Coldplay", "Look at the stars, look how they shine for you"],
+    ["Something Just Like This", "The Chainsmokers e Coldplay", "I want something just like this"],
+    ["Heat Waves", "Glass Animals", "Sometimes, all I think about is you"],
+    ["As It Was", "Harry Styles", "In this world, it's just us"],
+    ["Levitating", "Dua Lipa", "My sugarboo, I'm levitating"],
+    ["Shallow", "Lady Gaga e Bradley Cooper", "I'm off the deep end, watch as I dive in"],
+    ["Someone Like You", "Adele", "Never mind, I'll find someone like you"],
+    ["Rolling in the Deep", "Adele", "We could have had it all"],
+    ["Wake Me Up", "Avicii", "So wake me up when it's all over"],
+    ["Lose Yourself", "Eminem", "You only get one shot, do not miss your chance to blow"],
+    ["Don't Stop Me Now", "Queen", "Don't stop me now, I'm having such a good time"],
+    ["Africa", "Toto", "I bless the rains down in Africa"],
+    ["Can't Help Falling in Love", "Elvis Presley", "Wise men say only fools rush in"],
+    ["Love Yourself", "Justin Bieber", "My mama don't like you and she likes everyone"],
+    ["Happy", "Pharrell Williams", "Because I'm happy, clap along"],
+    ["Seven Nation Army", "The White Stripes", "I'm gonna fight 'em off"],
+    ["Photograph", "Ed Sheeran", "We keep this love in a photograph"],
+    ["Stressed Out", "twenty one pilots", "Wish we could turn back time to the good old days"],
+    ["Radioactive", "Imagine Dragons", "I'm waking up, I feel it in my bones"],
+    ["Thunder", "Imagine Dragons", "Thunder, feel the thunder"],
+    ["Shake It Off", "Taylor Swift", "'Cause the players gonna play, play, play, play, play"],
+    ["Blank Space", "Taylor Swift", "Got a long list of ex-lovers"],
+    ["Flowers", "Miley Cyrus", "I can buy myself flowers"],
+    ["Somebody That I Used to Know", "Gotye", "But you didn't have to cut me off"],
+    ["Garota de Ipanema", "Tom Jobim e Vinicius de Moraes", "Olha que coisa mais linda, mais cheia de graça"],
+    ["Aquarela do Brasil", "Ary Barroso", "Brasil, meu Brasil brasileiro"],
+    ["Evidências", "Chitãozinho & Xororó", "E nessa loucura de dizer que não te quero"],
+    ["Ai Se Eu Te Pego", "Michel Teló", "Nossa, nossa, assim você me mata"],
+    ["País Tropical", "Jorge Ben Jor", "Moro num país tropical, abençoado por Deus"],
+    ["Mas Que Nada", "Jorge Ben Jor", "Ô ariá raiô, obá, obá, obá"],
+    ["Taj Mahal", "Jorge Ben Jor", "Foi a mais linda história de amor que me contaram"],
+    ["Asa Branca", "Luiz Gonzaga", "Quando olhei a terra ardendo, qual fogueira de São João"],
+    ["Xote das Meninas", "Luiz Gonzaga", "Mandacaru quando fulora na seca"],
+    ["Trem das Onze", "Adoniran Barbosa", "Não posso ficar nem mais um minuto com você"],
+    ["Eduardo e Mônica", "Legião Urbana", "Quem um dia irá dizer que existe razão nas coisas feitas pelo coração?"],
+    ["Tempo Perdido", "Legião Urbana", "Somos tão jovens, tão jovens, tão jovens"],
+    ["Pais e Filhos", "Legião Urbana", "É preciso amar as pessoas como se não houvesse amanhã"],
+    ["Que País É Este", "Legião Urbana", "Que país é este?"],
+    ["Cheia de Manias", "Raça Negra", "Cheia de manias, toda dengosa"],
+    ["Velha Infância", "Tribalistas", "Você é assim, um sonho pra mim"],
+    ["Já Sei Namorar", "Tribalistas", "Já sei namorar, já sei beijar de língua"],
+    ["Exagerado", "Cazuza", "Exagerado, jogado aos teus pés, eu sou mesmo exagerado"],
+    ["O Sol", "Vitor Kley", "Ô, sol, vê se não esquece e me ilumina"],
+    ["Trem-Bala", "Ana Vilela", "Não é sobre ter todas as pessoas do mundo pra si"],
+    ["Deixa Acontecer", "Grupo Revelação", "Deixa acontecer naturalmente"],
+    ["Deixa a Vida Me Levar", "Zeca Pagodinho", "Deixa a vida me levar, vida leva eu"],
+    ["Sorte Grande", "Ivete Sangalo", "Poeira, poeira, poeira, levantou poeira"],
+    ["Mania de Você", "Rita Lee", "Meu bem, você me dá água na boca"],
+    ["Lança Perfume", "Rita Lee", "Lança, menina, lança todo esse perfume"],
+    ["Ovelha Negra", "Rita Lee", "Levava uma vida sossegada, gostava de sombra e água fresca"],
+    ["Como Uma Onda", "Lulu Santos", "Nada do que foi será de novo do jeito que já foi um dia"],
+    ["Andar com Fé", "Gilberto Gil", "Andar com fé eu vou, que a fé não costuma faiá"],
+    ["Sozinho", "Caetano Veloso", "Às vezes, no silêncio da noite, eu fico imaginando nós dois"],
+    ["Leãozinho", "Caetano Veloso", "Gosto muito de te ver, leãozinho"],
+    ["Tocando em Frente", "Almir Sater", "Ando devagar porque já tive pressa"],
+    ["É o Amor", "Zezé Di Camargo & Luciano", "É o amor, que mexe com minha cabeça e me deixa assim"],
+    ["Pense em Mim", "Leandro & Leonardo", "Pense em mim, chore por mim, liga pra mim"],
+    ["Entre Tapas e Beijos", "Leandro & Leonardo", "Entre tapas e beijos, é ódio, é desejo"],
+    ["Fio de Cabelo", "Chitãozinho & Xororó", "Quando a gente ama qualquer coisa serve para relembrar"],
+    ["Camaro Amarelo", "Munhoz & Mariano", "Agora fiquei doce igual caramelo"],
+    ["Show das Poderosas", "Anitta", "Prepara, que agora é a hora do show das poderosas"],
+    ["Infiel", "Marília Mendonça", "Infiel, eu quero ver você morar num motel"],
+    ["O Canto da Cidade", "Daniela Mercury", "A cor dessa cidade sou eu, o canto dessa cidade é meu"],
+    ["Dias de Luta, Dias de Glória", "Charlie Brown Jr.", "Dias de luta, dias de glória"],
+    ["Anna Júlia", "Los Hermanos", "Oh, Anna Júlia"],
+    ["Pelados em Santos", "Mamonas Assassinas", "Mina, seus cabelo é da hora, seu corpão violão"],
+    ["Ragatanga", "Rouge", "Aserejé, ja deje tejebe tude jebere"],
+    ["Ilariê", "Xuxa", "Ilariê, ê ê ô"],
+    ["Lua de Cristal", "Xuxa", "Tudo pode ser, se quiser será"],
+    ["Detalhes", "Roberto Carlos", "Não adianta nem tentar me esquecer"],
+    ["Como É Grande o Meu Amor por Você", "Roberto Carlos", "Eu tenho tanto pra te falar, mas com palavras não sei dizer"],
+    ["Epitáfio", "Titãs", "Devia ter amado mais, ter chorado mais"],
+    ["Inútil", "Ultraje a Rigor", "A gente não sabemos escolher presidente"],
+    ["Burguesinha", "Seu Jorge", "Burguesinha, burguesinha, burguesinha"],
+    ["Carolina", "Seu Jorge", "Carolina é uma menina bem difícil de esquecer"],
+    ["Descobridor dos Sete Mares", "Tim Maia", "Uma luz azul me guia com a firmeza e os lampejos do farol"],
+    ["Gostava Tanto de Você", "Tim Maia", "Não sei por que você se foi, quantas saudades eu senti"],
+    ["Sossego", "Tim Maia", "Ora bolas, não me amole com esse papo de emprego"],
+    ["Telegrama", "Zeca Baleiro", "Eu tava triste, tristinho, mais sem graça que a top model magrela"],
+    ["Vou Festejar", "Beth Carvalho", "Você pagou com traição a quem sempre lhe deu a mão"],
+    ["Canta, Canta, Minha Gente", "Martinho da Vila", "Canta, canta, minha gente, deixa a tristeza pra lá"],
+    ["Preta Pretinha", "Novos Baianos", "Enquanto eu corria, assim eu ia lhe chamar"],
+    ["Chão de Giz", "Zé Ramalho", "Eu desço dessa solidão, espalho coisas sobre um chão de giz"],
+    ["Admirável Gado Novo", "Zé Ramalho", "Ê, ô, ô, vida de gado, povo marcado, ê, povo feliz"],
+    ["Romaria", "Renato Teixeira", "Sou caipira, Pirapora, Nossa Senhora de Aparecida"],
+    ["Eva", "Banda Eva", "Meu amor, olha só, hoje o sol não apareceu"],
+    ["Como Eu Quero", "Kid Abelha", "Diz pra eu ficar muda, faz cara de mistério"],
+    ["Pintura Íntima", "Kid Abelha", "Fazer amor de madrugada, amor com jeito de virada"],
+    ["Tropa de Elite", "Tihuana", "Tropa de elite, osso duro de roer"],
+    ["Lepo Lepo", "Psirico", "Eu não tenho carro, não tenho teto"],
+    ["Florentina", "Tiririca", "Florentina, Florentina, Florentina de Jesus"],
+    ["Ai Que Saudade D'Ocê", "Elba Ramalho", "Não se admire se um dia um beija-flor invadir a porta da tua casa"],
+    ["Me Apaixonei Pela Pessoa Errada", "Exaltasamba", "Me apaixonei pela pessoa errada"],
+    ["Meu Erro", "Os Paralamas do Sucesso", "Eu quis dizer, você não quis escutar"]
+  ],
+  desafio: [
+    ["Sampa", "Caetano Veloso", "Alguma coisa acontece no meu coração"],
+    ["Construção", "Chico Buarque", "Amou daquela vez como se fosse a última"],
+    ["Cálice", "Chico Buarque e Milton Nascimento", "Pai, afasta de mim esse cálice"],
+    ["Vento no Litoral", "Legião Urbana", "De tarde quero descansar, chegar até a praia"],
+    ["Índios", "Legião Urbana", "Quem me dera ao menos uma vez"],
+    ["Quase Sem Querer", "Legião Urbana", "Tenho andado distraído, impaciente e indeciso"],
+    ["O Bêbado e a Equilibrista", "Elis Regina", "Caía a tarde feito um viaduto"],
+    ["Como Nossos Pais", "Elis Regina", "Ainda somos os mesmos e vivemos como os nossos pais"],
+    ["Águas de Março", "Elis Regina e Tom Jobim", "É pau, é pedra, é o fim do caminho"],
+    ["Travessia", "Milton Nascimento", "Quando você foi embora, fez-se noite em meu viver"],
+    ["Gita", "Raul Seixas", "Eu sou a luz das estrelas, eu sou a cor do luar"],
+    ["Maluco Beleza", "Raul Seixas", "Enquanto você se esforça pra ser um sujeito normal"],
+    ["Metamorfose Ambulante", "Raul Seixas", "Eu prefiro ser essa metamorfose ambulante"],
+    ["Apenas um Rapaz Latino-Americano", "Belchior", "Eu sou apenas um rapaz latino-americano sem dinheiro no banco"],
+    ["Chega de Saudade", "João Gilberto", "Vai, minha tristeza, e diz a ela que sem ela não pode ser"],
+    ["Drão", "Gilberto Gil", "Drão, o amor da gente é como um grão"],
+    ["Cajuína", "Caetano Veloso", "Existirmos, a que será que se destina?"],
+    ["Alegria, Alegria", "Caetano Veloso", "Caminhando contra o vento, sem lenço e sem documento"],
+    ["Tigresa", "Caetano Veloso", "Uma tigresa de unhas negras e íris cor de mel"],
+    ["Carinhoso", "Pixinguinha", "Meu coração, não sei por quê, bate feliz quando te vê"],
+    ["Creep", "Radiohead", "But I'm a creep, I'm a weirdo"],
+    ["Karma Police", "Radiohead", "This is what you'll get when you mess with us"],
+    ["Losing My Religion", "R.E.M.", "That's me in the corner, that's me in the spotlight"],
+    ["Zombie", "The Cranberries", "In your head, in your head, zombie, zombie"],
+    ["Ain't No Sunshine", "Bill Withers", "Ain't no sunshine when she's gone"],
+    ["Superstition", "Stevie Wonder", "When you believe in things that you don't understand"],
+    ["Under the Bridge", "Red Hot Chili Peppers", "Sometimes I feel like I don't have a partner"],
+    ["Space Oddity", "David Bowie", "Ground control to Major Tom"],
+    ["Life on Mars?", "David Bowie", "Is there life on Mars?"],
+    ["Wish You Were Here", "Pink Floyd", "How I wish, how I wish you were here"],
+    ["Kiss from a Rose", "Seal", "Baby, I compare you to a kiss from a rose on the grey"],
+    ["Tainted Love", "Soft Cell", "Sometimes I feel I've got to run away"],
+    ["Clocks", "Coldplay", "Lights go out and I can't be saved"],
+    ["Mr. Jones", "Counting Crows", "Mr. Jones and me tell each other fairy tales"],
+    ["Dreams", "Fleetwood Mac", "Thunder only happens when it's raining"],
+    ["Take Me to Church", "Hozier", "Take me to church"],
+    ["Everybody Wants to Rule the World", "Tears for Fears", "Welcome to your life, there's no turning back"],
+    ["Hallelujah", "Leonard Cohen", "Now I've heard there was a secret chord"],
+    ["Don't Look Back in Anger", "Oasis", "So Sally can wait, she knows it's too late"]
+  ]
+};
+
+/* ===== Constantes do jogo ===== */
+const TEMPO = 40;          // segundos por música
+const AVISO = 15;          // apito e coreografia liberada
+const META = 50;           // pontos para vencer
+const PTS_ARTISTA = 3, PTS_TITULO = 5;
+const CORRIDA_INICIO = 8;  // cantor começa valendo 8 e perde 1 a cada 5 s
+const CORES = ["coral", "mar", "sol", "uva", "lima", "ceu"];
+const NOMES_COR = ["Coral", "Mar", "Sol", "Uva", "Lima", "Céu"];
+const MODOS = {
+  classico: { nome: "Clássico", desc: "Em times. Quem acerta continua jogando." },
+  umavez: { nome: "Uma vez por time", desc: "Em times. A vez sempre passa, para todos jogarem mais. Bom para mais de 15 pessoas." },
+  corrida: { nome: "Corrida", desc: "Cada um por si. O cantor canta para todos e quem acertar primeiro pontua." }
+};
+
+/* ===== Armazenamento local (opcional, só neste aparelho) ===== */
+const store = {
+  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const parseNomes = s => String(s || "").split(/[,\n;]/).map(x => x.trim()).filter(Boolean);
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const range = n => Array.from({ length: n }, (_, i) => i);
+
+function setupPadrao() {
+  return { mode: "classico", teams: [
+    { name: "Time Coral", color: "coral", players: "" },
+    { name: "Time Mar", color: "mar", players: "" }
+  ], players: "" };
+}
+
+let S = { screen: "menu", open: true, rules: null, tut: 0, tutNext: null, err: "", choose: null, exitAsk: false, setup: setupPadrao(), game: null };
+let ticker = null;
+
+function salvar() { store.set("pabla.setup", S.setup); if (S.game) store.set("pabla.game", S.game); else store.del("pabla.game"); }
+
+/* ===== Som, vibração e tela acesa ===== */
+let audio = null;
+function initAudio() { try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); if (audio.state === "suspended") audio.resume(); } catch (e) { audio = null; } }
+function beep(freq = 880, dur = 0.18, times = 1) {
+  if (!audio) return;
+  try {
+    for (let i = 0; i < times; i++) {
+      const t = audio.currentTime + i * (dur + 0.08);
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = "square"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t + dur + 0.02);
+    }
+  } catch (e) {}
+}
+function vibrar(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+let wakeLock = null;
+async function telaAcesa() { try { if ("wakeLock" in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); } } catch (e) { wakeLock = null; } }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.game && S.screen !== "menu") telaAcesa(); });
+
+/* ===== Lógica da partida ===== */
+function novoBaralho() { return { n: shuffle(range(PACOTE_BASE.normal.length)), d: shuffle(range(PACOTE_BASE.desafio.length)) }; }
+function puxar(g, k) { if (!g.deck[k].length) g.deck[k] = shuffle(range(PACOTE_BASE[k === "n" ? "normal" : "desafio"].length)); return g.deck[k].pop(); }
+function emTimes(g) { return g.mode !== "corrida"; }
+function cantorAtual(g) {
+  if (emTimes(g)) { const t = g.teams[g.turn]; return { nome: t.players[t.next % t.players.length], time: t }; }
+  return { nome: g.players[g.singer].name, time: null };
+}
+function mult(g) { return g.pick === 3 ? 2 : 1; }
+function valorCantor(g) {
+  const passou = Math.floor((Date.now() - g.startedAt) / 5000);
+  return Math.max(0, CORRIDA_INICIO - passou) * mult(g);
+}
+
+function iniciarPartida() {
+  const st = S.setup; S.err = "";
+  const g = { mode: st.mode, turn: 0, singer: 0, deck: novoBaralho(), card: null, pick: null, marks: null, log: [], winner: null };
+  if (st.mode === "corrida") {
+    const ps = parseNomes(st.players);
+    if (ps.length < 3) { S.err = "No modo Corrida, cadastre pelo menos 3 pessoas."; return render(); }
+    g.players = ps.map(n => ({ name: n, score: 0 }));
+  } else {
+    g.teams = st.teams.map((t, i) => ({ name: t.name.trim() || "Time " + NOMES_COR[i], color: t.color, players: parseNomes(t.players), score: 0, next: 0 }));
+    const fraco = g.teams.find(t => t.players.length < 2);
+    if (fraco) { S.err = fraco.name + " precisa de pelo menos 2 pessoas: uma canta e as outras adivinham."; return render(); }
+  }
+  S.game = g; salvar(); initAudio(); telaAcesa();
+  if (!store.get("pabla.tutorialVisto")) { S.tut = 0; S.tutNext = "handoff"; S.screen = "tutorial"; }
+  else S.screen = "handoff";
+  render();
+}
+
+function verCarta() {
+  const g = S.game;
+  if (!g.card) g.card = [puxar(g, "n"), puxar(g, "n"), puxar(g, "n"), puxar(g, "d")];
+  g.pick = null; S.screen = "card"; salvar(); render();
+}
+function musica(g, i) { const id = g.card[i]; return i === 3 ? PACOTE_BASE.desafio[id] : PACOTE_BASE.normal[id]; }
+
+function comecar() {
+  const g = S.game; if (g.pick == null) return;
+  initAudio(); telaAcesa();
+  g.marks = { artist: null, title: null, falou: false, singerPts: 0, fim: null };
+  g.startedAt = Date.now(); g.endsAt = g.startedAt + TEMPO * 1000; g.warned = false;
+  S.choose = null; S.screen = "sing"; salvar(); render();
+  beep(660, 0.12, 2); iniciarRelogio();
+}
+
+function iniciarRelogio() {
+  pararRelogio();
+  ticker = setInterval(tick, 200); tick();
+}
+function pararRelogio() { if (ticker) { clearInterval(ticker); ticker = null; } }
+function tick() {
+  const g = S.game; if (!g || S.screen !== "sing") return pararRelogio();
+  const rest = Math.max(0, g.endsAt - Date.now());
+  const s = Math.ceil(rest / 1000);
+  const num = document.getElementById("timer-num"), prog = document.getElementById("timer-prog"), stage = document.getElementById("stage");
+  if (num) num.textContent = s;
+  if (prog) { const c = 2 * Math.PI * 84; prog.style.strokeDasharray = c; prog.style.strokeDashoffset = c * (1 - rest / (TEMPO * 1000)); }
+  if (rest <= AVISO * 1000 && !g.warned) { g.warned = true; beep(988, 0.2, 2); vibrar([200, 100, 200]); salvar(); }
+  if (stage) stage.classList.toggle("dance", rest <= AVISO * 1000);
+  const dm = document.getElementById("dance-msg"); if (dm) dm.hidden = rest > AVISO * 1000;
+  const sv = document.getElementById("singer-val"); if (sv) sv.textContent = valorCantor(g);
+  if (rest <= 0) { beep(220, 0.5, 1); vibrar(400); terminar("tempo"); }
+}
+
+function marcar(tipo, quem) {
+  const g = S.game, m = g.marks;
+  if (tipo === "artist") { m.artist = quem || true; S.choose = null; beep(1200, 0.08); salvar(); render(); return; }
+  if (tipo === "title") {
+    m.title = quem || true;
+    if (!emTimes(g)) m.singerPts = valorCantor(g);
+    beep(1320, 0.1, 2); terminar("titulo");
+  }
+}
+function terminar(motivo) {
+  pararRelogio(); const g = S.game; g.marks.fim = motivo; S.choose = null; S.screen = "result"; salvar(); render();
+}
+
+function pontosDaMusica(g) {
+  const m = g.marks, x = mult(g);
+  if (m.falou) return { total: 0, itens: [] };
+  const itens = [];
+  if (m.artist) itens.push({ quem: m.artist === true ? null : m.artist, o: "Artista", p: PTS_ARTISTA * x });
+  if (m.title) itens.push({ quem: m.title === true ? null : m.title, o: "Título", p: PTS_TITULO * x });
+  if (!emTimes(g) && m.singerPts) itens.push({ quem: cantorAtual(g).nome, o: "Cantor", p: m.singerPts });
+  return { total: itens.reduce((a, b) => a + b.p, 0), itens };
+}
+
+function avancar() {
+  const g = S.game, cantor = cantorAtual(g), pts = pontosDaMusica(g), m = g.marks, song = musica(g, g.pick);
+  if (emTimes(g)) {
+    const t = g.teams[g.turn];
+    t.score += pts.total;
+    g.log.unshift({ txt: cantor.nome + " (" + t.name + "): " + song[0], p: pts.total });
+    t.next++;
+    if (t.score >= META) { g.winner = g.turn; }
+    const acertou = (m.artist || m.title) && !m.falou;
+    if (!(g.mode === "classico" && acertou)) g.turn = (g.turn + 1) % g.teams.length;
+  } else {
+    pts.itens.forEach(it => { const p = g.players.find(x => x.name === it.quem); if (p) p.score += it.p; });
+    g.log.unshift({ txt: cantor.nome + " cantou " + song[0], p: pts.total });
+    const lider = g.players.reduce((a, b, i) => (b.score > g.players[a].score ? i : a), 0);
+    if (g.players[lider].score >= META) g.winner = lider;
+    g.singer = (g.singer + 1) % g.players.length;
+  }
+  g.card = null; g.pick = null; g.marks = null;
+  S.screen = g.winner != null ? "win" : "handoff";
+  salvar(); render();
+}
+
+/* ===== Regras (livro) ===== */
+const REGRAS = [
+  ["objetivo", "Objetivo", "<p>Uma pessoa cantarola uma música sem nenhuma palavra e os outros tentam adivinhar o artista e o título. Vence quem chegar a " + META + " pontos primeiro; o jogo termina na hora.</p>"],
+  ["preparacao", "Preparação", "<ul><li>Escolham o modo: Clássico, Uma vez por time ou Corrida.</li><li>No Clássico e no Uma vez por time, montem times de pelo menos 2 pessoas. Na Corrida, cada um joga por si (mínimo 3 pessoas).</li><li>Com mais de 15 pessoas, o app sugere Uma vez por time.</li><li>Um celular só passa de mão em mão. A carta só aparece quando o cantor toca para ver.</li></ul>"],
+  ["carta", "A carta", "<ul><li>Só o cantor olha a carta.</li><li>Ela traz 3 músicas normais e 1 música Desafio, que vale o dobro.</li><li>Cada música mostra título, artista e um trecho da letra para lembrar a melodia.</li><li>O cantor escolhe uma e toca em Começar.</li></ul>"],
+  ["cantar", "Cantando", "<ul><li>São " + TEMPO + " segundos. O celular apita quando faltam " + AVISO + ".</li><li>Vale: hum, nanana, tururu, assobiar e bater o ritmo.</li><li>Não vale: falar qualquer palavra (em qualquer língua) nem apontar para coisas.</li><li>Nos últimos " + AVISO + " segundos, pode dançar a coreografia da música.</li><li>Se o cantor falar ou apontar, a música vale zero e a vez passa.</li></ul>"],
+  ["pontos", "Pontos", "<ul><li>Acertou o artista: " + PTS_ARTISTA + " pontos. Acertou o título: " + PTS_TITULO + " pontos. Os dois: " + (PTS_ARTISTA + PTS_TITULO) + ".</li><li>Música Desafio: tudo em dobro (6, 10 ou 16).</li><li>Depois de acertar o artista, o time pode continuar tentando o título até o tempo acabar.</li><li>Título vale sem artigos (\"Garota de Ipanema\" vale para \"A Garota de Ipanema\") e sem a parte entre parênteses. Meio título não vale.</li></ul>"],
+  ["vez", "De quem é a vez", "<ul><li>Clássico: se o time acertou o artista ou o título, continua jogando. A próxima pessoa do mesmo time canta uma carta nova, com " + TEMPO + " segundos novos. Sem limite de músicas seguidas.</li><li>Se o tempo acabar sem acerto, ou o cantor falar, a vez passa para o próximo time.</li><li>Uma vez por time: a vez sempre passa, mesmo com acerto.</li></ul>"],
+  ["corrida", "Modo Corrida", "<ul><li>Cada um por si. O cantor canta para todos.</li><li>Quem acerta ganha como no Clássico: " + PTS_ARTISTA + " pelo artista e " + PTS_TITULO + " pelo título. Podem ser pessoas diferentes.</li><li>O cantor começa valendo " + CORRIDA_INICIO + " pontos e perde 1 a cada 5 segundos. Ele ganha o que estiver valendo quando alguém acertar o título.</li><li>Depois, o celular vai para a próxima pessoa da lista.</li></ul>"],
+  ["fim", "Fim de jogo", "<p>Quem chegar a " + META + " pontos primeiro vence, na hora.</p>"]
+];
+function secaoAtual() {
+  return { menu: "objetivo", setup: "preparacao", tutorial: "objetivo", handoff: "carta", card: "carta", sing: S.game && S.game.mode === "corrida" ? "corrida" : "cantar", result: "pontos", win: "fim" }[S.screen] || "objetivo";
+}
+
+/* ===== Telas ===== */
+const LOGO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 26c3-6 6-6 9 0s6 6 9 0 6-6 9 0 5 5 7 2" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="34" cy="12" r="4" fill="#fff"/><path d="M38 12V4l5 2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><ellipse cx="16" cy="38" rx="9" ry="4" fill="#fff" opacity=".9"/></svg>';
+
+function topbar(titulo) {
+  return '<div class="topbar">' +
+    (S.screen === "menu" ? "" : '<button class="icon-btn" data-act="sair" aria-label="Voltar ao menu">←</button>') +
+    '<div class="brand">' + esc(titulo) + '</div>' +
+    '<button class="icon-btn" data-act="regras" aria-label="Regras">?</button></div>';
+}
+function dica(html) { return '<div class="tip" role="status"><span class="dot"></span><div>' + html + '</div></div>'; }
+
+function confirmSair() {
+  return S.exitAsk ? '<div class="confirm"><b>Sair da partida?</b><span class="small">A partida fica salva neste celular e dá para continuar pelo menu.</span><div class="row"><button class="btn btn-ghost" data-act="sair-nao">Ficar</button><button class="btn btn-primary" data-act="sair-sim">Sair</button></div></div>' : "";
+}
+
+function placar(g, compacto) {
+  if (emTimes(g)) {
+    return '<div class="board">' + g.teams.map((t, i) =>
+      '<div class="score-row" style="--tc:var(--t-' + t.color + ')"><div class="name"><span class="swatch"></span><span>' + esc(t.name) + (i === g.turn && !compacto ? " · na vez" : "") + '</span></div><div class="pts">' + t.score + ' / ' + META + '</div><div class="bar"><i style="width:' + Math.min(100, t.score / META * 100) + '%"></i></div></div>').join("") + '</div>';
+  }
+  const ord = g.players.map((p, i) => ({ ...p, i })).sort((a, b) => b.score - a.score);
+  return '<div class="board">' + ord.slice(0, compacto ? 5 : 99).map(p =>
+    '<div class="score-row"><div class="name"><span>' + esc(p.name) + '</span></div><div class="pts">' + p.score + ' / ' + META + '</div><div class="bar"><i style="width:' + Math.min(100, p.score / META * 100) + '%"></i></div></div>').join("") + '</div>';
+}
+
+function telaMenu() {
+  const g = S.game;
+  const resume = g && g.winner == null ? '<div class="resume"><b>Tem uma partida de Pabla em andamento.</b><div class="row"><button class="btn btn-primary" data-act="continuar">Continuar</button><button class="btn btn-ghost" data-act="descartar">Descartar</button></div></div>' : "";
+  return topbar("Um Jogo Casual") +
+    '<div class="hello"><h1>Bora jogar?</h1><p class="muted">Jogos para a turma, todo mundo na mesma sala.</p></div>' + resume +
+    '<div class="game-card' + (S.open ? " open" : "") + '">' +
+      '<button class="game-head" data-act="toggle" aria-expanded="' + S.open + '"><div class="logo">' + LOGO + '</div><div><h2>Pabla</h2><span class="muted small">Música · em times</span></div><span class="chev">▾</span></button>' +
+      (S.open ? '<div class="facts">' +
+        '<div class="fact wide"><div class="label">Resumo</div><div class="v">Cantarole uma música sem palavras e faça seu time adivinhar.</div></div>' +
+        '<div class="fact"><div class="label">Pessoas</div><div class="v">4 ou mais</div></div>' +
+        '<div class="fact"><div class="label">Idade</div><div class="v">10+</div></div>' +
+        '<div class="fact"><div class="label">Tipo</div><div class="v">Festa, música</div></div>' +
+        '<div class="fact"><div class="label">Duração</div><div class="v">20 a 40 min</div></div>' +
+        '</div><div class="game-actions"><button class="btn btn-primary" data-act="preparar">Jogar Pabla</button><button class="btn btn-ghost" data-act="tutorial">Como jogar (1 min)</button></div>' : "") +
+    '</div>' +
+    '<div class="soon"><b>Mais jogos em breve.</b><br><span class="small">Os próximos entram aqui no menu, com o mesmo cartão.</span></div>';
+}
+
+function telaSetup() {
+  const st = S.setup;
+  const total = st.mode === "corrida" ? parseNomes(st.players).length : st.teams.reduce((a, t) => a + parseNomes(t.players).length, 0);
+  const sugestao = st.mode === "classico" && total > 15 ? '<div class="notice"><b>' + total + ' pessoas: que tal o modo Uma vez por time?</b><span class="small">Com muita gente, a vez passa sempre e todos jogam mais.</span><button class="btn btn-warn" data-act="modo" data-v="umavez">Usar Uma vez por time</button></div>' : "";
+  let corpo;
+  if (st.mode === "corrida") {
+    corpo = '<div class="section"><div class="label">Quem vai jogar</div><textarea id="players-corrida" data-field="players" rows="3" placeholder="Ana, Beto, Carla, Davi">' + esc(st.players) + '</textarea><span class="small muted">Separe os nomes por vírgula. A ordem da lista é a ordem de quem canta.</span></div>';
+  } else {
+    corpo = '<div class="section"><div class="label">Times</div>' + st.teams.map((t, i) =>
+      '<div class="team" style="--tc:var(--t-' + t.color + ')"><div class="team-top"><span class="swatch"></span><input id="team-name-' + i + '" data-team="' + i + '" data-field="name" value="' + esc(t.name) + '" aria-label="Nome do time">' +
+      (st.teams.length > 2 ? '<button class="icon-btn" data-act="rm-team" data-i="' + i + '" aria-label="Remover time">×</button>' : "") + '</div>' +
+      '<textarea id="team-players-' + i + '" data-team="' + i + '" data-field="players" rows="2" placeholder="' + ["Ana, Beto, Carla", "Davi, Elisa, Fábio", "Gabi, Hugo", "Iara, João", "Kiko, Lia", "Malu, Nico"][i] + '">' + esc(t.players) + '</textarea></div>').join("") +
+      (st.teams.length < 6 ? '<button class="btn btn-ghost" data-act="add-team">+ Adicionar time</button>' : "") +
+      '<span class="small muted">Separe os nomes por vírgula. Cada time precisa de pelo menos 2 pessoas.</span></div>';
+  }
+  return topbar("Pabla") + dica("<b>Preparação.</b> Escolham o modo, digitem os nomes e toquem em Começar.") +
+    '<div class="section"><div class="label">Modo</div><div class="modes">' + Object.entries(MODOS).map(([k, m]) =>
+      '<button class="mode' + (st.mode === k ? " on" : "") + '" data-act="modo" data-v="' + k + '" aria-pressed="' + (st.mode === k) + '"><span class="radio"></span><span><b>' + m.nome + (k === "classico" ? " (padrão)" : "") + '</b><span class="small muted">' + m.desc + '</span></span></button>').join("") + '</div></div>' +
+    sugestao + corpo +
+    '<div class="section"><div class="label">Pacotes de músicas</div>' +
+      '<div class="pack"><div><b>Base</b><div class="small muted">Sucessos com mais de 1 bilhão de plays e clássicos do Brasil · ' + (PACOTE_BASE.normal.length + PACOTE_BASE.desafio.length) + ' músicas</div></div><span class="pill on">Ativo</span></div>' +
+      ["Pagode anos 90", "Sertanejo anos 90", "Anos 80", "Pop e rock internacional 2000"].map(p => '<div class="pack off"><b>' + p + '</b><span class="pill">Em breve</span></div>').join("") +
+    '</div>' +
+    (S.err ? '<div class="error" role="alert">' + esc(S.err) + '</div>' : "") +
+    '<button class="btn btn-primary" data-act="iniciar">Começar partida</button>';
+}
+
+const TUTORIAL = [
+  ["Cante sem palavras", "Hum, nanana, tururu, assobio e ritmo na mesa valem. Falar qualquer palavra ou apontar, não."],
+  ["Escolha 1 de 4", "Só quem canta vê a carta: 3 músicas normais e 1 Desafio, que vale o dobro. Cada uma traz um trecho da letra para lembrar a melodia."],
+  ["40 segundos", "O celular apita quando faltam 15. A partir daí, pode dançar a coreografia."],
+  ["Artista 3, título 5", "Acertou o artista ou o título, o time continua jogando com a próxima pessoa. Errou, a vez passa."],
+  ["Quem fizer 50, vence", "Na hora. E no modo Corrida é cada um por si: o cantor perde pontos a cada 5 segundos."]
+];
+function telaTutorial() {
+  const [t, d] = TUTORIAL[S.tut], ultimo = S.tut === TUTORIAL.length - 1;
+  return topbar("Como jogar") +
+    '<div class="tut"><div class="step">' + (S.tut + 1) + ' de ' + TUTORIAL.length + '</div><h2>' + t + '</h2><p>' + d + '</p>' +
+    '<div class="dots">' + TUTORIAL.map((_, i) => '<i class="' + (i === S.tut ? "on" : "") + '"></i>').join("") + '</div></div>' +
+    '<div class="row">' + (S.tut > 0 ? '<button class="btn btn-ghost" data-act="tut-prev">Voltar</button>' : '<button class="btn btn-ghost" data-act="tut-fim">Pular</button>') +
+    '<button class="btn btn-primary" data-act="' + (ultimo ? "tut-fim" : "tut-next") + '">' + (ultimo ? "Entendi" : "Próximo") + '</button></div>';
+}
+
+function telaHandoff() {
+  const g = S.game, c = cantorAtual(g);
+  const tc = c.time ? "var(--t-" + c.time.color + ")" : "var(--accent)";
+  const sub = c.time ? esc(c.time.name) : "Cada um por si";
+  return topbar("Pabla") + confirmSair() +
+    dica("<b>Passe o celular.</b> Ninguém além de " + esc(c.nome) + " deve olhar a tela agora.") +
+    '<div class="handoff" style="--tc:' + tc + '"><div class="label">' + sub + ' · vez de</div><div class="who">' + esc(c.nome) + '</div>' +
+    '<button class="btn btn-primary" data-act="ver-carta">Sou ' + esc(c.nome) + ': ver a carta</button></div>' +
+    '<div class="section"><div class="label">Placar · meta ' + META + '</div>' + placar(g) + '</div>' +
+    (g.log.length ? '<div class="section"><div class="label">Anotações</div><div class="log">' + g.log.slice(0, 6).map(l => '<div><span>' + esc(l.txt) + '</span><span>+' + l.p + '</span></div>').join("") + '</div></div>' : "");
+}
+
+function telaCarta() {
+  const g = S.game, c = cantorAtual(g);
+  return topbar("Pabla") + confirmSair() +
+    dica("<b>" + esc(c.nome) + ", escolha uma música.</b> Leia o trecho, lembre a melodia e toque em Começar.") +
+    '<div class="card">' + [0, 1, 2, 3].map(i => {
+      const m = musica(g, i);
+      return '<button class="song' + (i === 3 ? " desafio" : "") + (g.pick === i ? " sel" : "") + '" data-act="pick" data-i="' + i + '" aria-pressed="' + (g.pick === i) + '">' +
+        '<span class="tag">' + (i === 3 ? "Desafio ×2" : (PTS_ARTISTA + PTS_TITULO) + " pts") + '</span>' +
+        '<span class="t">' + esc(m[0]) + '</span><span class="a">' + esc(m[1]) + '</span><span class="l">“' + esc(m[2]) + '”</span></button>';
+    }).join("") + '</div>' +
+    '<button class="btn btn-primary" data-act="comecar"' + (g.pick == null ? " disabled" : "") + '>Começar · ' + TEMPO + ' s</button>';
+}
+
+function telaCantar() {
+  const g = S.game, m = g.marks, song = musica(g, g.pick), x = mult(g);
+  const c = 2 * Math.PI * 84;
+  let chooser = "";
+  if (!emTimes(g) && S.choose) {
+    const cantor = cantorAtual(g).nome;
+    chooser = '<div class="chooser"><b>Quem acertou o ' + (S.choose === "artist" ? "artista" : "título") + '?</b><div class="chips">' +
+      g.players.filter(p => p.name !== cantor).map(p => '<button class="chip" data-act="quem" data-v="' + esc(p.name) + '">' + esc(p.name) + '</button>').join("") +
+      '</div><button class="btn btn-ghost" data-act="quem-cancelar">Cancelar</button></div>';
+  }
+  const quemTxt = v => (v && v !== true ? " · " + esc(v) : "");
+  return topbar("Pabla") +
+    dica(emTimes(g) ? "<b>Cantarole!</b> O time grita palpites. Quando acertarem, toque no botão certo." : "<b>Cantarole para todos!</b> Quando alguém acertar, toque no botão e escolha quem foi.") +
+    '<div class="stage" id="stage"><div class="now-song">Cantando <b>' + esc(song[0]) + '</b> · ' + esc(song[1]) + (x > 1 ? " · Desafio ×2" : "") + '</div>' +
+      '<div class="ring"><svg viewBox="0 0 190 190"><circle class="track" cx="95" cy="95" r="84" fill="none" stroke-width="14"/><circle class="prog" id="timer-prog" cx="95" cy="95" r="84" fill="none" stroke-width="14" stroke-linecap="round" style="stroke-dasharray:' + c + ';stroke-dashoffset:0"/></svg><div class="num" id="timer-num">' + TEMPO + '</div></div>' +
+      '<div class="dance-msg" id="dance-msg" hidden>Últimos ' + AVISO + ' s: coreografia liberada!</div>' +
+      (!emTimes(g) ? '<div class="singer-val">Cantor vale agora: <span id="singer-val">' + valorCantor(g) + '</span></div>' : "") +
+      '<div class="marks"><span class="mark' + (m.artist ? " ok" : "") + '">Artista' + (m.artist ? " ✓" + quemTxt(m.artist) : "") + '</span><span class="mark">Título</span></div>' +
+      chooser +
+    '</div>' +
+    (S.choose ? "" :
+    '<div class="stack">' +
+      '<button class="btn btn-ok" data-act="acertou-titulo">Acertaram o título · +' + PTS_TITULO * x + '</button>' +
+      (!m.artist ? '<button class="btn btn-ghost" data-act="acertou-artista">Acertaram o artista · +' + PTS_ARTISTA * x + '</button>' : "") +
+      '<div class="row"><button class="btn btn-warn" data-act="falou">Falou ou apontou</button><button class="btn btn-ghost" data-act="desistir">Desistir</button></div>' +
+    '</div>');
+}
+
+function telaResultado() {
+  const g = S.game, m = g.marks, song = musica(g, g.pick), pts = pontosDaMusica(g), x = mult(g);
+  const titulo = m.falou ? "Falou! Zero pontos." : m.title ? "Acertaram!" : m.artist ? "Acertaram o artista" : "Acabou o tempo";
+  const extra = emTimes(g) && m.title && !m.artist && !m.falou ? '<button class="btn btn-ghost" data-act="tambem-artista">Também disseram o artista · +' + PTS_ARTISTA * x + '</button>' : "";
+  const extraCorrida = !emTimes(g) && m.title && !m.artist && !m.falou ? '<button class="btn btn-ghost" data-act="escolher-artista">Alguém disse o artista? · +' + PTS_ARTISTA * x + '</button>' : "";
+  let proximo = "";
+  if (emTimes(g)) {
+    const acertou = (m.artist || m.title) && !m.falou;
+    const t = g.teams[g.turn];
+    proximo = g.mode === "classico" && acertou ? t.name + " continua jogando." : "A vez passa para " + g.teams[(g.turn + 1) % g.teams.length].name + ".";
+    if (t.score + pts.total >= META) proximo = t.name + " chega a " + META + "!";
+  }
+  let chooser = "";
+  if (!emTimes(g) && S.choose === "artist-late") {
+    chooser = '<div class="chooser"><b>Quem disse o artista?</b><div class="chips">' + g.players.filter(p => p.name !== cantorAtual(g).nome).map(p => '<button class="chip" data-act="quem-late" data-v="' + esc(p.name) + '">' + esc(p.name) + '</button>').join("") + '</div></div>';
+  }
+  return topbar("Pabla") + dica("<b>Resultado.</b> Confiram a resposta e passem para a próxima vez.") +
+    '<div class="result"><div class="label">' + titulo + '</div><div class="big">+' + pts.total + '</div>' +
+      '<div class="answer"><div class="label">A música era</div><b>' + esc(song[0]) + '</b><div class="small muted">' + esc(song[1]) + '</div></div>' +
+      (!emTimes(g) && pts.itens.length ? '<div class="log">' + pts.itens.map(i => '<div><span>' + esc(i.quem || "") + ' · ' + i.o + '</span><span>+' + i.p + '</span></div>').join("") + '</div>' : "") +
+      (proximo ? '<p class="small muted">' + esc(proximo) + '</p>' : "") +
+    '</div>' + extra + extraCorrida + chooser +
+    '<button class="btn btn-primary" data-act="avancar">Continuar</button>';
+}
+
+function telaVitoria() {
+  const g = S.game;
+  const nome = emTimes(g) ? g.teams[g.winner].name : g.players[g.winner].name;
+  const tc = emTimes(g) ? "var(--t-" + g.teams[g.winner].color + ")" : "var(--accent)";
+  return topbar("Pabla") +
+    '<div class="win" style="--tc:' + tc + '"><div class="label">Fim de jogo · ' + META + ' pontos</div><h1>' + esc(nome) + ' venceu!</h1></div>' +
+    '<div class="section"><div class="label">Placar final</div>' + placar(g, true) + '</div>' +
+    '<div class="section"><div class="label">Todas as músicas</div><div class="log">' + g.log.map(l => '<div><span>' + esc(l.txt) + '</span><span>+' + l.p + '</span></div>').join("") + '</div></div>' +
+    '<div class="row"><button class="btn btn-ghost" data-act="menu">Menu</button><button class="btn btn-primary" data-act="revanche">Jogar de novo</button></div>';
+}
+
+function folhaRegras() {
+  if (!S.rules) return "";
+  return '<div class="sheet-bg" data-act="regras-fechar"><div class="sheet" role="dialog" aria-modal="true" aria-label="Regras do Pabla" data-stop="1">' +
+    '<div class="sheet-head"><h2>Regras do Pabla</h2><button class="icon-btn" data-act="regras-fechar" aria-label="Fechar">×</button></div>' +
+    '<div class="sheet-body" id="rules-body">' + REGRAS.map(([id, t, h]) => '<div class="rule' + (id === S.rules ? " here" : "") + '" id="r-' + id + '"><h3>' + t + '</h3>' + h + '</div>').join("") + '</div></div></div>';
+}
+
+function render() {
+  const telas = { menu: telaMenu, setup: telaSetup, tutorial: telaTutorial, handoff: telaHandoff, card: telaCarta, sing: telaCantar, result: telaResultado, win: telaVitoria };
+  document.getElementById("app").innerHTML = (telas[S.screen] || telaMenu)() + folhaRegras();
+  if (S.rules) { const el = document.getElementById("r-" + S.rules); if (el) el.scrollIntoView({ block: "start" }); }
+  if (S.screen === "sing") tick();
+}
+
+/* ===== Eventos ===== */
+document.getElementById("app").addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  if (el.classList.contains("sheet-bg") && e.target.closest("[data-stop]")) return;
+  const a = el.dataset.act, g = S.game;
+  switch (a) {
+    case "toggle": S.open = !S.open; break;
+    case "preparar": S.err = ""; S.screen = "setup"; break;
+    case "tutorial": S.tut = 0; S.tutNext = "menu"; S.screen = "tutorial"; break;
+    case "tut-next": S.tut++; break;
+    case "tut-prev": S.tut--; break;
+    case "tut-fim": store.set("pabla.tutorialVisto", true); S.screen = S.tutNext || "menu"; break;
+    case "continuar": S.screen = g.marks && g.marks.fim ? "result" : g.card ? "card" : "handoff"; telaAcesa(); break;
+    case "descartar": S.game = null; salvar(); break;
+    case "regras": S.rules = secaoAtual(); break;
+    case "regras-fechar": S.rules = null; break;
+    case "sair":
+      if (S.screen === "win") { S.game = null; salvar(); S.screen = "menu"; }
+      else if (S.screen === "setup" || S.screen === "tutorial") S.screen = "menu";
+      else if (S.screen === "sing") { terminar("desistiu"); return; }
+      else S.exitAsk = true;
+      break;
+    case "sair-nao": S.exitAsk = false; break;
+    case "sair-sim": S.exitAsk = false; pararRelogio(); S.screen = "menu"; break;
+    case "menu": S.game = null; salvar(); S.screen = "menu"; break;
+    case "modo": S.setup.mode = el.dataset.v; S.err = ""; salvar(); break;
+    case "add-team": { const usadas = S.setup.teams.map(t => t.color); const i = CORES.findIndex(c => !usadas.includes(c)); S.setup.teams.push({ name: "Time " + NOMES_COR[i], color: CORES[i], players: "" }); salvar(); break; }
+    case "rm-team": S.setup.teams.splice(+el.dataset.i, 1); salvar(); break;
+    case "iniciar": iniciarPartida(); return;
+    case "ver-carta": verCarta(); return;
+    case "pick": g.pick = +el.dataset.i; salvar(); break;
+    case "comecar": comecar(); return;
+    case "acertou-titulo": if (emTimes(g)) marcar("title"); else { S.choose = "title"; render(); } return;
+    case "acertou-artista": if (emTimes(g)) marcar("artist"); else { S.choose = "artist"; render(); } return;
+    case "quem": marcar(S.choose, el.dataset.v); return;
+    case "quem-cancelar": S.choose = null; break;
+    case "falou": g.marks.falou = true; beep(200, 0.3); terminar("falou"); return;
+    case "desistir": terminar("desistiu"); return;
+    case "tambem-artista": g.marks.artist = true; salvar(); break;
+    case "escolher-artista": S.choose = "artist-late"; break;
+    case "quem-late": g.marks.artist = el.dataset.v; S.choose = null; salvar(); break;
+    case "avancar": S.choose = null; avancar(); return;
+    case "revanche": { S.game = null; iniciarPartida(); return; }
+  }
+  render();
+});
+document.getElementById("app").addEventListener("input", e => {
+  const el = e.target, f = el.dataset.field; if (!f) return;
+  if (el.dataset.team != null) S.setup.teams[+el.dataset.team][f] = el.value; else S.setup[f] = el.value;
+  salvar();
+  if (S.screen === "setup" && f === "players") {
+    // Atualiza só a sugestão de modo para não perder o foco do campo
+    const st = S.setup, total = st.mode === "corrida" ? parseNomes(st.players).length : st.teams.reduce((a, t) => a + parseNomes(t.players).length, 0);
+    const tem = !!document.querySelector(".notice");
+    if ((st.mode === "classico" && total > 15) !== tem) { const pos = el.selectionStart, id = el.id; render(); const n = document.getElementById(id); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (x) {} } }
+  }
+});
+
+/* ===== Início ===== */
+function boot(data) {
+  S.setup = (data && data.setup) || store.get("pabla.setup") || setupPadrao();
+  S.game = (data && data.game) || store.get("pabla.game") || null;
+  S.screen = (data && data.screen) || "menu";
+  if (S.screen === "sing" && !(S.game && S.game.marks)) S.screen = "menu";
+  render();
+  if (S.screen === "sing") iniciarRelogio();
+}
+try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ setup: S.setup, game: S.game, screen: S.screen })); } catch (e) {}
+if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(boot);
+else boot(window.claude && window.claude.hot && window.claude.hot.data || {});
+</script>
+
+<script>
+// Instala o service worker para o app abrir offline e poder ir para a tela inicial.
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
+</script>
+</body>
+</html>
