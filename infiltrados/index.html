@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Jogo Casual">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Infiltrados · Um Jogo Casual</title>
+<meta name="theme-color" content="#E8336D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+[hidden] { display: none !important; }
+</style>
+<style>
+/* Estilo base copiado do index.html (mesmo visual do Pabla). Ao mudar o visual base lá, copie para cá. */
+/* Layout: uma coluna estreita de celular; cada tela é um "palco" com barra de dica no topo e ação principal embaixo. */
+:root {
+  --bg: #F3F2FA;
+  --surface: #FFFFFF;
+  --ink: #1D1B3A;
+  --muted: #64628A;
+  --line: #DEDCEE;
+  --accent: #E8336D;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #FDE2EB;
+  --warn: #F5B700;
+  --warn-soft: #FFF3C9;
+  --ok: #129A6B;
+  --ok-soft: #DDF4EA;
+  --stripe-1: #E3F4F4;
+  --stripe-2: #E8EEFC;
+  --stripe-3: #EFEAFC;
+  --t-coral: #F0544F;
+  --t-mar: #0E9C9C;
+  --t-sol: #D99A00;
+  --t-uva: #6C5AD0;
+  --t-lima: #4E9A22;
+  --t-ceu: #2A86E0;
+  --display: "Bagel Fat One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141329; --surface: #1F1D3B; --ink: #F1F0FF; --muted: #A6A4CA; --line: #34315B;
+    --accent: #FF5C8E; --accent-ink: #1A0710; --accent-soft: #4A1D31;
+    --warn: #FFCC3D; --warn-soft: #4A3A08; --ok: #3CCB95; --ok-soft: #123A2C;
+    --stripe-1: #173638; --stripe-2: #1C2847; --stripe-3: #2A2350;
+    --t-coral: #FF7A74; --t-mar: #2FC4C4; --t-sol: #F2B92E; --t-uva: #9C8CFF; --t-lima: #7BC74A; --t-ceu: #5AA8F5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141329; --surface: #1F1D3B; --ink: #F1F0FF; --muted: #A6A4CA; --line: #34315B;
+  --accent: #FF5C8E; --accent-ink: #1A0710; --accent-soft: #4A1D31;
+  --warn: #FFCC3D; --warn-soft: #4A3A08; --ok: #3CCB95; --ok-soft: #123A2C;
+  --stripe-1: #173638; --stripe-2: #1C2847; --stripe-3: #2A2350;
+  --t-coral: #FF7A74; --t-mar: #2FC4C4; --t-sol: #F2B92E; --t-uva: #9C8CFF; --t-lima: #7BC74A; --t-ceu: #5AA8F5;
+  color-scheme: dark;
+}
+html, body { height: 100%; overscroll-behavior-y: none; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+#app { max-width: 540px; margin: 0 auto; padding-block: 12px 32px; display: flex; flex-direction: column; gap: 16px; min-height: 100%; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+input, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; box-sizing: border-box; }
+textarea { resize: vertical; min-height: 48px; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+
+/* Botões */
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 20px; border-radius: 16px; font-weight: 700; font-size: 17px; width: 100%; box-sizing: border-box; transition: transform .08s ease; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { background: var(--surface); border: 1.5px solid var(--line); }
+.btn-ok { background: var(--ok); color: #fff; }
+.btn-warn { background: var(--warn-soft); color: var(--ink); border: 1.5px solid var(--warn); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+
+/* Barra superior */
+.topbar { display: flex; align-items: center; gap: 8px; }
+.topbar .brand { font-family: var(--display); font-size: 22px; flex: 1; min-width: 0; color: var(--accent); }
+.text-btn { height: 44px; padding: 0 12px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; font-size: 14px; flex: none; white-space: nowrap; }
+.icon-btn { width: 44px; height: 44px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); display: grid; place-items: center; font-weight: 700; font-size: 18px; flex: none; }
+.tip { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px; font-size: 15px; display: flex; gap: 10px; align-items: flex-start; }
+.tip b { color: var(--accent); }
+.tip .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-top: 7px; flex: none; }
+
+/* Menu */
+.hello h1 { font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1.05; }
+.game-card { background: var(--surface); border-radius: 22px; border: 1.5px solid var(--line); overflow: hidden; }
+.game-head { display: flex; gap: 14px; align-items: center; padding: 16px; width: 100%; text-align: left; }
+.logo { width: 64px; height: 64px; border-radius: 18px; background: var(--accent); display: grid; place-items: center; flex: none; }
+.logo svg { width: 44px; height: 44px; }
+.game-head h2 { font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1; }
+.game-head .chev { margin-left: auto; font-size: 20px; transition: transform .2s; }
+.game-card.open .chev { transform: rotate(180deg); }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 16px; }
+.fact { background: var(--bg); border-radius: 14px; padding: 10px 12px; }
+.fact .v { font-weight: 700; }
+.fact.wide { grid-column: 1 / -1; }
+.game-actions { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.soon { border: 1.5px dashed var(--line); border-radius: 22px; padding: 16px; color: var(--muted); }
+.resume { background: var(--accent-soft); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Preparação */
+.section { display: flex; flex-direction: column; gap: 10px; }
+.modes { display: flex; flex-direction: column; gap: 8px; }
+.mode { text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+.mode .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); flex: none; margin-top: 2px; display: grid; place-items: center; }
+.mode.on { border-color: var(--accent); }
+.mode.on .radio { border-color: var(--accent); }
+.mode.on .radio::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.mode b { display: block; }
+.team { background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 8px; border-left: 8px solid var(--tc); }
+.team-top { display: flex; gap: 8px; align-items: center; }
+.team-top input { font-weight: 700; }
+.swatch { width: 14px; height: 14px; border-radius: 50%; background: var(--tc); flex: none; }
+.notice { background: var(--warn-soft); border: 1.5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.error { background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; font-weight: 500; }
+.pack { display: flex; justify-content: space-between; gap: 12px; align-items: center; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.pack.off { opacity: .55; }
+.pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--bg); white-space: nowrap; }
+.pill.on { background: var(--ok-soft); color: var(--ok); }
+
+/* Placar */
+.board { display: flex; flex-direction: column; gap: 8px; }
+.score-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; }
+.score-row .name { font-weight: 700; display: flex; gap: 8px; align-items: center; min-width: 0; }
+.score-row .name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score-row .pts { font-variant-numeric: tabular-nums; font-weight: 700; }
+.bar { grid-column: 1 / -1; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--tc, var(--accent)); border-radius: 99px; }
+
+/* Passar o celular */
+.handoff { background: var(--surface); border-radius: 24px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; text-align: center; border-top: 10px solid var(--tc, var(--accent)); }
+.handoff .who { font-family: var(--display); font-weight: 400; font-size: 40px; line-height: 1.05; word-break: break-word; }
+
+/* Carta */
+.card { background: var(--surface); border-radius: 24px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1.5px solid var(--line); }
+.song { text-align: left; border-radius: 16px; padding: 14px 14px 14px 16px; display: flex; flex-direction: column; gap: 2px; border: 2.5px solid transparent; position: relative; }
+.song:nth-child(1) { background: var(--stripe-1); }
+.song:nth-child(2) { background: var(--stripe-2); }
+.song:nth-child(3) { background: var(--stripe-3); }
+.song.desafio { background: var(--accent-soft); }
+.song.sel { border-color: var(--accent); }
+.song .t { font-weight: 700; font-size: 18px; line-height: 1.2; padding-right: 64px; }
+.song .a { font-size: 14px; color: var(--muted); }
+.song .l { font-style: italic; font-size: 15px; margin-top: 4px; }
+.song .tag { position: absolute; top: 12px; right: 12px; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--surface); }
+.song.desafio .tag { background: var(--accent); color: var(--accent-ink); }
+
+/* Cantando */
+.stage { background: var(--surface); border-radius: 24px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; border: 1.5px solid var(--line); transition: background .3s; }
+.stage.dance { background: var(--warn-soft); border-color: var(--warn); }
+.ring { position: relative; width: 190px; height: 190px; max-width: 100%; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .track { stroke: var(--line); }
+.ring .prog { stroke: var(--accent); transition: stroke-dashoffset .25s linear; }
+.stage.dance .ring .prog { stroke: var(--warn); }
+.ring .num { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-size: 64px; font-variant-numeric: tabular-nums; }
+.now-song { font-size: 14px; color: var(--muted); }
+.now-song b { color: var(--ink); }
+.dance-msg { font-weight: 700; }
+.marks { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.mark { padding: 6px 12px; border-radius: 99px; background: var(--bg); font-weight: 700; font-size: 14px; }
+.mark.ok { background: var(--ok-soft); color: var(--ok); }
+.singer-val { font-weight: 700; font-size: 18px; }
+.chooser { background: var(--bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip { padding: 10px 14px; border-radius: 99px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; }
+
+/* Resultado e vitória */
+.result { background: var(--surface); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: center; border: 1.5px solid var(--line); }
+.big { font-family: var(--display); font-size: 56px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.answer { background: var(--bg); border-radius: 14px; padding: 12px; }
+.win { text-align: center; display: flex; flex-direction: column; gap: 12px; padding-block: 12px; }
+.win h1 { font-family: var(--display); font-weight: 400; font-size: 44px; line-height: 1.05; color: var(--tc, var(--accent)); word-break: break-word; }
+.log { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.log div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.log div span:last-child { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+
+/* Tutorial */
+.tut { background: var(--surface); border-radius: 24px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; border: 1.5px solid var(--line); }
+.tut .step { font-weight: 700; color: var(--accent); }
+.tut h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.05; }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); width: 22px; border-radius: 99px; }
+
+/* Regras */
+.sheet-bg { position: fixed; inset: 0; background: rgba(10, 8, 30, .5); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--bg); width: 100%; max-width: 560px; max-height: 88%; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; box-sizing: border-box; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sheet-head { display: flex; align-items: center; gap: 10px; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); }
+.sheet-head h2 { font-family: var(--display); font-weight: 400; font-size: 24px; flex: 1; }
+.sheet-body { overflow-y: auto; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 4px; }
+.rule { padding: 12px 14px; border-radius: 14px; scroll-margin-top: 8px; }
+.rule h3 { font-size: 17px; margin-bottom: 4px; }
+.rule ul { margin: 4px 0 0; padding-left: 20px; }
+.rule.here { background: var(--accent-soft); }
+.rule.here h3::after { content: "  · você está aqui"; font-size: 12px; color: var(--accent); }
+
+.confirm { background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ===== Infiltrados ===== */
+:root { --res: var(--t-ceu); --esp: var(--accent); }
+.switch { text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; width: 100%; }
+.switch .box { width: 44px; height: 26px; border-radius: 99px; background: var(--line); flex: none; position: relative; margin-top: 1px; transition: background .15s; }
+.switch .box::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .15s; }
+.switch.on { border-color: var(--accent); }
+.switch.on .box { background: var(--accent); }
+.switch.on .box::after { left: 21px; }
+.switch b { display: block; }
+.count { font-weight: 700; }
+.count.bad { color: var(--accent); }
+
+.score { display: flex; align-items: stretch; gap: 10px; }
+.score > div { flex: 1; border-radius: 16px; padding: 10px 12px; background: var(--surface); border: 1.5px solid var(--line); text-align: center; }
+.score .v { font-family: var(--display); font-size: 34px; line-height: 1; }
+.score .res .v { color: var(--res); }
+.score .esp .v { color: var(--esp); }
+.missions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ms { aspect-ratio: 1; border-radius: 50%; border: 2.5px solid var(--line); background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; position: relative; }
+.ms .n { font-family: var(--display); font-size: 24px; }
+.ms .s { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+.ms.now { border-color: var(--ink); border-width: 3px; }
+.ms.ok { background: var(--res); border-color: var(--res); color: #fff; }
+.ms.bad { background: var(--esp); border-color: var(--esp); color: #fff; }
+.ms.ok .s, .ms.bad .s { color: #fff; }
+.ms .two { position: absolute; bottom: -8px; font-size: 10px; font-weight: 700; background: var(--warn); color: #1D1B3A; padding: 2px 6px; border-radius: 99px; white-space: nowrap; }
+.rej { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.rej .pips { display: flex; gap: 6px; }
+.rej .pips i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); box-sizing: border-box; }
+.rej .pips i.on { background: var(--warn); border-color: var(--warn); }
+.rej .pips i:last-child { border-color: var(--esp); }
+.rej .pips i:last-child.on { background: var(--esp); }
+
+.leader { background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.leader .who { font-family: var(--display); font-size: 28px; line-height: 1.05; word-break: break-word; }
+.pick-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick { padding: 10px 14px; border-radius: 99px; background: var(--bg); border: 2px solid var(--line); font-weight: 700; min-height: 44px; }
+.pick.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pick.lead::after { content: " ★"; color: var(--warn); }
+.team-line { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.team-line span { background: var(--bg); padding: 6px 12px; border-radius: 99px; font-weight: 700; font-size: 15px; }
+
+.role { border-radius: 24px; padding: 24px 20px; text-align: center; display: flex; flex-direction: column; gap: 12px; color: #fff; }
+.role.res { background: var(--res); }
+.role.esp { background: var(--esp); }
+.role h2 { font-family: var(--display); font-weight: 400; font-size: 42px; line-height: 1; }
+.role .mates { background: rgba(0,0,0,.18); border-radius: 14px; padding: 12px; }
+.role .mates b { font-size: 20px; }
+
+.vote-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vbtn { min-height: 120px; border-radius: 20px; font-weight: 700; font-size: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 2px solid transparent; }
+.vbtn .ic { font-size: 40px; line-height: 1; }
+.vbtn.yes { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
+.vbtn.no { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.vbtn.suc { background: var(--res); color: #fff; }
+.vbtn.fra { background: var(--esp); color: #fff; }
+.vbtn[disabled] { opacity: .3; cursor: not-allowed; }
+
+.vrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 8px 8px 8px 14px; }
+.vrow b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seg { display: flex; gap: 6px; }
+.seg button { min-width: 52px; height: 44px; border-radius: 12px; background: var(--bg); border: 1.5px solid var(--line); font-size: 18px; }
+.seg button.y { background: var(--ok); border-color: var(--ok); color: #fff; }
+.seg button.n { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.tally { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.tally div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--bg); font-weight: 700; }
+.tally .y { color: var(--ok); }
+.tally .n { color: var(--accent); }
+
+.cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.mcard { width: 64px; height: 92px; border-radius: 12px; display: grid; place-items: center; font-family: var(--display); font-size: 30px; background: var(--line); color: var(--muted); }
+.mcard.s { background: var(--res); color: #fff; }
+.mcard.f { background: var(--esp); color: #fff; }
+.mcard.flip { animation: flip .35s ease; }
+@keyframes flip { from { transform: rotateY(90deg); } to { transform: rotateY(0); } }
+
+.hist { display: flex; flex-direction: column; gap: 8px; }
+.hi { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.hi .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.bad { background: var(--accent-soft); color: var(--accent); }
+.pill.res { background: var(--res); color: #fff; }
+.pill.esp { background: var(--esp); color: #fff; }
+.roles { display: flex; flex-direction: column; gap: 6px; }
+.roles div { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; }
+.mini { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mini th, .mini td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--line); }
+.mini th { color: var(--muted); font-weight: 700; }
+.mini tr.on td { background: var(--accent-soft); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ===== Infiltrados =====
+   Jogo de dedução social em um celular só, passando de mão em mão.
+   Modo básico: Resistência contra Espiões. */
+
+const ESPIOES = { 5: 2, 6: 2, 7: 3, 8: 3, 9: 3, 10: 4 };
+const TAMANHOS = { 5: [2, 3, 2, 3, 3], 6: [2, 3, 4, 3, 4], 7: [2, 3, 3, 4, 4], 8: [3, 4, 4, 5, 5], 9: [3, 4, 4, 5, 5], 10: [3, 4, 4, 5, 5] };
+const MIN = 5, MAX = 10, VITORIA = 3, MAX_REJ = 5;
+const falhasPrecisa = (n, m) => (n >= 7 && m === 3 ? 2 : 1);
+
+const store = {
+  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const parseNomes = s => String(s || "").split(/[,\n;]/).map(x => x.trim()).filter(Boolean);
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const range = n => Array.from({ length: n }, (_, i) => i);
+const lista = arr => arr.length <= 1 ? arr.join("") : arr.slice(0, -1).join(", ") + " e " + arr[arr.length - 1];
+
+function setupPadrao() { return { players: "", historico: true, votoMesa: false }; }
+
+let S = { screen: "setup", rules: null, tut: 0, tutNext: null, err: "", exitAsk: false, restartAsk: false, rever: null, setup: setupPadrao(), game: null };
+
+function salvar() { store.set("infiltrados.setup", S.setup); if (S.game) store.set("infiltrados.game", S.game); else store.del("infiltrados.game"); }
+
+function vibrar(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+let wakeLock = null;
+async function telaAcesa() { try { if ("wakeLock" in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); } } catch (e) { wakeLock = null; } }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.game && S.screen === "jogo") telaAcesa(); });
+
+/* ===== Lógica ===== */
+const nome = (g, i) => g.nomes[i];
+const ehEspiao = (g, i) => g.espioes.includes(i);
+const tamanho = g => TAMANHOS[g.nomes.length][g.missao];
+const placarRes = g => g.resultados.filter(r => r && r.ok).length;
+const placarEsp = g => g.resultados.filter(r => r && !r.ok).length;
+const ultimaProposta = g => g.hist[g.hist.length - 1];
+
+function validarNomes(txt) {
+  const ns = parseNomes(txt);
+  if (ns.length < MIN) return { ns, erro: "Precisa de pelo menos " + MIN + " pessoas (tem " + ns.length + ")." };
+  if (ns.length > MAX) return { ns, erro: "O máximo é " + MAX + " pessoas (tem " + ns.length + ")." };
+  const vistos = new Set();
+  for (const n of ns) { const k = n.toLowerCase(); if (vistos.has(k)) return { ns, erro: "O nome " + n + " aparece duas vezes. Use um apelido ou a inicial do sobrenome." }; vistos.add(k); }
+  return { ns, erro: null };
+}
+
+function iniciarPartida() {
+  const st = S.setup; S.err = "";
+  const { ns, erro } = validarNomes(st.players);
+  if (erro) { S.err = erro; return render(); }
+  const n = ns.length;
+  const g = {
+    nomes: ns, espioes: shuffle(range(n)).slice(0, ESPIOES[n]).sort((a, b) => a - b),
+    lider: Math.floor(Math.random() * n), missao: 0, tentativa: 1, rejeicoes: 0,
+    resultados: [null, null, null, null, null], equipe: [], votos: [], cartas: [], revelado: 0,
+    hist: [], fase: "papeis", cursor: 0, secreto: false, vencedor: null, motivo: "",
+    historico: !!st.historico, votoMesa: !!st.votoMesa
+  };
+  S.game = g; S.screen = "jogo"; S.rever = null; salvar(); telaAcesa();
+  if (!store.get("infiltrados.tutorialVisto")) { S.tut = 0; S.tutNext = "jogo"; S.screen = "tutorial"; }
+  render();
+}
+
+function proximo(g) { g.cursor++; g.secreto = false; }
+
+function terminarPapeis(g) { g.fase = "mesa"; g.cursor = 0; g.secreto = false; g.equipe = []; }
+
+function proporEquipe(g) {
+  if (g.equipe.length !== tamanho(g)) return;
+  g.equipe.sort((a, b) => a - b);
+  g.votos = g.nomes.map(() => null); g.cursor = 0; g.secreto = false; g.fase = "voto";
+}
+
+function fecharVotacao(g) {
+  const n = g.nomes.length, sim = g.votos.filter(v => v === true).length;
+  const aprovada = sim > n / 2;
+  g.hist.push({ missao: g.missao, tentativa: g.tentativa, lider: g.lider, equipe: g.equipe.slice(), votos: g.votos.slice(), aprovada, resultado: null });
+  if (aprovada) g.rejeicoes = 0; else g.rejeicoes++;
+  g.fase = "votoRes";
+}
+
+function depoisDoVoto(g) {
+  const p = ultimaProposta(g);
+  if (p.aprovada) { g.fase = "missao"; g.cursor = 0; g.secreto = false; g.cartas = []; return; }
+  if (g.rejeicoes >= MAX_REJ) { g.vencedor = "espioes"; g.motivo = MAX_REJ + " equipes rejeitadas seguidas"; g.fase = "fim"; return; }
+  g.lider = (g.lider + 1) % g.nomes.length; g.tentativa++; g.equipe = []; g.fase = "mesa";
+}
+
+function jogarCarta(g, sucesso) {
+  if (!sucesso && !ehEspiao(g, g.equipe[g.cursor])) return; // a Resistência sempre joga Sucesso
+  g.cartas.push(!!sucesso); proximo(g);
+  if (g.cursor >= g.equipe.length) {
+    const falhas = g.cartas.filter(c => !c).length;
+    const ok = falhas < falhasPrecisa(g.nomes.length, g.missao);
+    g.cartas = shuffle(g.cartas.slice()); g.revelado = 0;
+    const r = { falhas, ok, equipe: g.equipe.slice() };
+    g.resultados[g.missao] = r; ultimaProposta(g).resultado = { falhas, ok };
+    g.fase = "missaoRes";
+  }
+}
+
+function depoisDaMissao(g) {
+  if (placarRes(g) >= VITORIA) { g.vencedor = "resistencia"; g.motivo = VITORIA + " missões com sucesso"; g.fase = "fim"; return; }
+  if (placarEsp(g) >= VITORIA) { g.vencedor = "espioes"; g.motivo = VITORIA + " missões sabotadas"; g.fase = "fim"; return; }
+  g.missao++; g.tentativa = 1; g.lider = (g.lider + 1) % g.nomes.length; g.equipe = []; g.fase = "mesa";
+}
+
+/* ===== Regras ===== */
+function tabelaMissoes(nSel) {
+  return '<table class="mini"><tr><th>Pessoas</th><th>Espiões</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th></tr>' +
+    Object.keys(TAMANHOS).map(k => '<tr' + (+k === nSel ? ' class="on"' : "") + '><td>' + k + '</td><td>' + ESPIOES[k] + '</td>' +
+      TAMANHOS[k].map((t, m) => '<td>' + t + (falhasPrecisa(+k, m) > 1 ? "*" : "") + '</td>').join("") + '</tr>').join("") +
+    '</table><p class="small muted">* Na 4ª missão, com 7 ou mais pessoas, são precisos 2 fracassos para derrubar.</p>';
+}
+const REGRAS = [
+  ["objetivo", "Objetivo", "<p>A Resistência quer completar 3 missões. Os espiões, infiltrados entre eles, querem sabotar 3. Quem chegar a 3 primeiro vence.</p>"],
+  ["preparacao", "Preparação", "<ul><li>De 5 a 10 pessoas, um celular só passando de mão em mão.</li><li>Digitem os nomes na ordem em que estão sentados. A liderança anda nessa ordem.</li><li>O app sorteia os espiões e o primeiro líder.</li></ul>"],
+  ["papeis", "Papéis secretos", "<ul><li>Cada pessoa olha o celular sozinha e vê o seu papel.</li><li>Espiões veem quem são os outros espiões. A Resistência não sabe de ninguém.</li><li>Na mesa, dá para tocar em Rever meu papel se alguém esquecer.</li></ul>"],
+  ["equipe", "Montar a equipe", "<ul><li>O líder escolhe quem vai na missão, podendo se incluir.</li><li>O tamanho da equipe muda a cada missão (veja a tabela no fim).</li><li>Conversem à vontade: acusar, defender e blefar faz parte.</li></ul>"],
+  ["votacao", "Votar a equipe", "<ul><li>Todos votam, inclusive o líder: aprova ou rejeita.</li><li>Mais da metade aprovando, a equipe sai em missão. Empate rejeita.</li><li>Os votos de cada pessoa aparecem para todos no final da votação.</li><li>Rejeitada, a liderança passa para a próxima pessoa. Cinco equipes rejeitadas seguidas na mesma missão dão a vitória aos espiões.</li></ul>"],
+  ["missao", "A missão", "<ul><li>Só quem está na equipe joga, um de cada vez e escondido: Sucesso ou Fracasso.</li><li>A Resistência sempre joga Sucesso. O espião escolhe se sabota ou não.</li><li>As cartas são embaralhadas antes de virar, então ninguém sabe quem jogou o quê.</li><li>Um fracasso já derruba a missão. Exceção: na 4ª missão com 7 ou mais pessoas, são precisos 2.</li><li>Depois da missão, a liderança passa para a próxima pessoa.</li></ul>"],
+  ["historico", "Histórico", "<p>Se ligado na preparação, a mesa mostra cada proposta: líder, equipe, quem aprovou, quem rejeitou e o resultado da missão. Desligado, cada um lembra de cabeça. No fim da partida o histórico completo aparece de qualquer jeito.</p>"],
+  ["fim", "Fim de jogo", "<p>3 sucessos, a Resistência vence. 3 fracassos ou 5 rejeições seguidas, vencem os espiões. No fim, o app mostra quem era quem.</p>"],
+  ["tabela", "Tabela de equipes", ""]
+];
+function secaoAtual() {
+  if (S.screen !== "jogo" || !S.game) return S.screen === "setup" ? "preparacao" : "objetivo";
+  return { papeis: "papeis", mesa: "equipe", voto: "votacao", votoRes: "votacao", missao: "missao", missaoRes: "missao", fim: "fim" }[S.game.fase] || "objetivo";
+}
+
+const TUTORIAL = [
+  ["Papéis secretos", "Cada um vê seu papel escondido. Os espiões sabem quem são os outros espiões; a Resistência não sabe de ninguém."],
+  ["O líder monta a equipe", "A cada missão, o líder escolhe quem vai. A liderança anda na ordem da mesa."],
+  ["Todos votam", "Mais da metade aprova, a equipe sai. Empate rejeita. Cinco rejeições seguidas, os espiões vencem."],
+  ["Sucesso ou fracasso", "Quem está na equipe joga escondido. A Resistência sempre joga Sucesso. O espião pode sabotar, e um fracasso já derruba a missão."],
+  ["Melhor de 5", "Três missões com sucesso, vence a Resistência. Três fracassos, vencem os espiões."]
+];
+
+/* ===== Peças de tela ===== */
+const LOGO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l16 6v12c0 10-7 18-16 22C15 40 8 32 8 22V10z" fill="#fff"/><path d="M13 24c3-5 7-7.5 11-7.5S32 19 35 24c-3 5-7 7.5-11 7.5S16 29 13 24z" fill="#6C5AD0"/><circle cx="24" cy="24" r="3.6" fill="#fff"/></svg>';
+
+function emJogo() { return S.screen === "jogo" && S.game && !S.game.vencedor; }
+function topbar() {
+  return '<div class="topbar"><button class="icon-btn" data-act="sair" aria-label="Voltar para a home">←</button><div class="brand">Infiltrados</div>' +
+    (emJogo() ? '<button class="text-btn" data-act="recomecar">↻ Recomeçar</button>' : "") +
+    '<button class="icon-btn" data-act="regras" aria-label="Regras">?</button></div>' + confirmSair() + confirmRecomecar();
+}
+function confirmSair() {
+  return S.exitAsk ? '<div class="confirm"><b>Sair da partida?</b><span class="small">A partida fica salva neste celular. Dá para continuar depois, abrindo o Infiltrados de novo.</span><div class="row"><button class="btn btn-ghost" data-act="sair-nao">Ficar</button><button class="btn btn-primary" data-act="sair-sim">Ir para a home</button></div></div>' : "";
+}
+function confirmRecomecar() {
+  return S.restartAsk ? '<div class="confirm" role="alertdialog"><b>Recomeçar a partida?</b><span class="small">A partida atual será perdida. As mesmas pessoas jogam de novo, com papéis sorteados outra vez.</span><div class="row"><button class="btn btn-ghost" data-act="recomecar-nao">Cancelar</button><button class="btn btn-primary" data-act="recomecar-sim">Recomeçar</button></div></div>' : "";
+}
+function dica(html) { return '<div class="tip" role="status"><span class="dot"></span><div>' + html + '</div></div>'; }
+function handoff(nomeP, sub, btn, act, cor) {
+  return '<div class="handoff" style="--tc:' + (cor || "var(--accent)") + '"><div class="label">' + sub + '</div><div class="who">' + esc(nomeP) + '</div>' +
+    '<button class="btn btn-primary" data-act="' + act + '">' + btn + '</button></div>';
+}
+
+function tabuleiro(g) {
+  const n = g.nomes.length;
+  return '<div class="score"><div class="res"><div class="label">Resistência</div><div class="v">' + placarRes(g) + '</div></div><div class="esp"><div class="label">Espiões</div><div class="v">' + placarEsp(g) + '</div></div></div>' +
+    '<div class="missions">' + TAMANHOS[n].map((t, m) => {
+      const r = g.resultados[m];
+      const cls = r ? (r.ok ? " ok" : " bad") : (m === g.missao && !g.vencedor ? " now" : "");
+      return '<div class="ms' + cls + '" aria-label="Missão ' + (m + 1) + ': ' + t + ' pessoas' + (r ? (r.ok ? ", sucesso" : ", fracasso") : "") + '"><span class="n">' + (r ? (r.ok ? "✓" : "✗") : t) + '</span><span class="s">' + (r ? "M" + (m + 1) : "pessoas") + '</span>' + (falhasPrecisa(n, m) > 1 && !r ? '<span class="two">2 falhas</span>' : "") + '</div>';
+    }).join("") + '</div>' +
+    '<div class="rej"><span class="small muted">Rejeições seguidas</span><span class="pips">' + range(MAX_REJ).map(i => '<i class="' + (i < g.rejeicoes ? "on" : "") + '"></i>').join("") + '</span></div>';
+}
+
+function itemHist(g, p) {
+  const sim = p.votos.map((v, i) => v ? nome(g, i) : null).filter(Boolean);
+  const nao = p.votos.map((v, i) => v === false ? nome(g, i) : null).filter(Boolean);
+  return '<div class="hi"><div class="top"><b>Missão ' + (p.missao + 1) + ' · proposta ' + p.tentativa + '</b><span class="pill ' + (p.aprovada ? "ok" : "bad") + '">' + (p.aprovada ? "Aprovada" : "Rejeitada") + ' ' + sim.length + '×' + nao.length + '</span></div>' +
+    '<div>Líder <b>' + esc(nome(g, p.lider)) + '</b> · Equipe: <b>' + esc(lista(p.equipe.map(i => nome(g, i)))) + '</b></div>' +
+    '<div class="muted">👍 ' + (esc(sim.join(", ")) || "ninguém") + '<br>👎 ' + (esc(nao.join(", ")) || "ninguém") + '</div>' +
+    (p.resultado ? '<div><span class="pill ' + (p.resultado.ok ? "res" : "esp") + '">' + (p.resultado.ok ? "Sucesso" : "Fracasso") + '</span> ' + p.resultado.falhas + ' carta' + (p.resultado.falhas === 1 ? "" : "s") + ' de fracasso</div>' : "") +
+  '</div>';
+}
+function historico(g) {
+  if (!g.hist.length) return "";
+  return '<div class="section"><div class="label">Histórico</div><div class="hist">' + g.hist.slice().reverse().map(p => itemHist(g, p)).join("") + '</div></div>';
+}
+
+/* ===== Telas ===== */
+function telaSetup() {
+  const st = S.setup, g = S.game;
+  const { ns, erro } = validarNomes(st.players);
+  const resume = g && !g.vencedor ? '<div class="resume"><b>Tem uma partida em andamento.</b><div class="row"><button class="btn btn-primary" data-act="continuar">Continuar</button><button class="btn btn-ghost" data-act="descartar">Começar nova</button></div></div>' : "";
+  return topbar() + resume +
+    dica("<b>Preparação.</b> Digitem os nomes na ordem em que estão sentados, escolham as opções e toquem em Começar.") +
+    '<div class="section"><div class="label">Quem vai jogar</div><textarea id="players" data-field="players" rows="3" placeholder="Ana, Beto, Carla, Davi, Elisa">' + esc(st.players) + '</textarea>' +
+      '<span id="count" class="small count' + (erro && ns.length ? " bad" : "") + '">' + contagem(ns, erro) + '</span></div>' +
+    '<div class="section"><div class="label">Opções</div>' +
+      '<button class="switch' + (st.historico ? " on" : "") + '" data-act="opt-hist" aria-pressed="' + !!st.historico + '"><span class="box"></span><span><b>Histórico de votações e equipes</b><span class="small muted">A mesa mostra quem estava em cada equipe, quem aprovou, quem rejeitou e se a missão deu certo. Desligado, cada um lembra de cabeça.</span></span></button>' +
+      '<div class="label" style="margin-top:6px">Como votar a equipe</div><div class="modes">' +
+        '<button class="mode' + (!st.votoMesa ? " on" : "") + '" data-act="opt-voto" data-v="celular" aria-pressed="' + !st.votoMesa + '"><span class="radio"></span><span><b>No celular (padrão)</b><span class="small muted">O celular passa de mão em mão e cada um vota escondido. Os votos aparecem todos juntos no final.</span></span></button>' +
+        '<button class="mode' + (st.votoMesa ? " on" : "") + '" data-act="opt-voto" data-v="mesa" aria-pressed="' + !!st.votoMesa + '"><span class="radio"></span><span><b>Na mesa</b><span class="small muted">Todos mostram o polegar ao mesmo tempo e o líder registra no app. Mais rápido.</span></span></button>' +
+      '</div></div>' +
+    '<div class="section"><div class="label">Tamanho das equipes</div>' + tabelaMissoes(ns.length) + '</div>' +
+    (S.err ? '<div class="error" role="alert">' + esc(S.err) + '</div>' : "") +
+    '<button class="btn btn-primary" data-act="iniciar">Começar partida</button>' +
+    '<button class="btn btn-ghost" data-act="tutorial">Como jogar (1 min)</button>';
+}
+function contagem(ns, erro) {
+  if (!ns.length) return "De " + MIN + " a " + MAX + " pessoas, separadas por vírgula.";
+  if (erro) return esc(erro);
+  return ns.length + " pessoas · " + ESPIOES[ns.length] + " espiões e " + (ns.length - ESPIOES[ns.length]) + " da Resistência";
+}
+
+function telaTutorial() {
+  const [t, d] = TUTORIAL[S.tut], ultimo = S.tut === TUTORIAL.length - 1;
+  return topbar() +
+    '<div class="tut"><div class="step">' + (S.tut + 1) + ' de ' + TUTORIAL.length + '</div><h2>' + t + '</h2><p>' + d + '</p>' +
+    '<div class="dots">' + TUTORIAL.map((_, i) => '<i class="' + (i === S.tut ? "on" : "") + '"></i>').join("") + '</div></div>' +
+    '<div class="row">' + (S.tut > 0 ? '<button class="btn btn-ghost" data-act="tut-prev">Voltar</button>' : '<button class="btn btn-ghost" data-act="tut-fim">Pular</button>') +
+    '<button class="btn btn-primary" data-act="' + (ultimo ? "tut-fim" : "tut-next") + '">' + (ultimo ? "Entendi" : "Próximo") + '</button></div>';
+}
+
+function cartaoPapel(g, i) {
+  if (ehEspiao(g, i)) {
+    const outros = g.espioes.filter(x => x !== i).map(x => nome(g, x));
+    return '<div class="role esp"><div class="label" style="color:#fff">' + esc(nome(g, i)) + ', você é</div><h2>Espião</h2><p>Sabote missões sem ser descoberto. Ganhe 3 fracassos.</p>' +
+      '<div class="mates">' + (outros.length > 1 ? "Os outros espiões são" : "O outro espião é") + '<br><b>' + esc(lista(outros)) + '</b></div></div>';
+  }
+  return '<div class="role res"><div class="label" style="color:#fff">' + esc(nome(g, i)) + ', você é da</div><h2>Resistência</h2><p>Descubra os ' + g.espioes.length + ' espiões e complete 3 missões. Você sempre joga Sucesso.</p></div>';
+}
+
+function telaPapeis(g) {
+  const i = g.cursor, n = g.nomes.length;
+  if (!g.secreto) {
+    return topbar() + dica("<b>Papéis secretos.</b> Cada um olha sozinho. Ninguém além de " + esc(nome(g, i)) + " deve ver a tela agora.") +
+      handoff(nome(g, i), "Pessoa " + (i + 1) + " de " + n, "Sou " + esc(nome(g, i)) + ": ver meu papel", "ver-papel");
+  }
+  const ult = i === n - 1;
+  return topbar() + cartaoPapel(g, i) +
+    '<button class="btn btn-primary" data-act="esconder-papel">' + (ult ? "Esconder e ir para a mesa" : "Esconder e passar para " + esc(nome(g, i + 1))) + '</button>';
+}
+
+function telaRever(g) {
+  if (S.rever === "escolher") {
+    return topbar() + dica("<b>Rever papel.</b> Toque no seu nome.") +
+      '<div class="pick-grid">' + g.nomes.map((nm, i) => '<button class="pick" data-act="rever-quem" data-i="' + i + '">' + esc(nm) + '</button>').join("") + '</div>' +
+      '<button class="btn btn-ghost" data-act="rever-fechar">Cancelar</button>';
+  }
+  const i = S.rever.i;
+  if (!S.rever.ver) return topbar() + dica("<b>Só " + esc(nome(g, i)) + " olha a tela.</b>") + handoff(nome(g, i), "Rever papel", "Sou " + esc(nome(g, i)) + ": ver", "rever-ver") + '<button class="btn btn-ghost" data-act="rever-fechar">Cancelar</button>';
+  return topbar() + cartaoPapel(g, i) + '<button class="btn btn-primary" data-act="rever-fechar">Esconder e voltar à mesa</button>';
+}
+
+function telaMesa(g) {
+  if (S.rever) return telaRever(g);
+  const t = tamanho(g), sel = g.equipe.length, n = g.nomes.length, precisa = falhasPrecisa(n, g.missao);
+  return topbar() +
+    dica("<b>Missão " + (g.missao + 1) + ".</b> " + esc(nome(g, g.lider)) + " escolhe " + t + " pessoas. Discutam à vontade antes de propor.") +
+    tabuleiro(g) +
+    '<div class="leader"><div class="label">Líder · proposta ' + g.tentativa + ' de ' + MAX_REJ + '</div><div class="who">' + esc(nome(g, g.lider)) + '</div>' +
+      '<span class="small muted">Toque em ' + t + ' nomes' + (precisa > 1 ? ". Nesta missão, só cai com 2 fracassos." : ".") + '</span>' +
+      '<div class="pick-grid">' + g.nomes.map((nm, i) => '<button class="pick' + (g.equipe.includes(i) ? " on" : "") + (i === g.lider ? " lead" : "") + '" data-act="sel" data-i="' + i + '" aria-pressed="' + g.equipe.includes(i) + '">' + esc(nm) + '</button>').join("") + '</div>' +
+      '<button class="btn btn-primary" data-act="propor"' + (sel === t ? "" : " disabled") + '>' + (sel === t ? "Propor equipe para votação" : "Escolha " + t + " pessoas (" + sel + "/" + t + ")") + '</button>' +
+    '</div>' +
+    (g.historico ? historico(g) : "") +
+    '<button class="btn btn-ghost" data-act="rever">Rever meu papel</button>';
+}
+
+function linhaEquipe(g) { return '<div class="team-line">' + g.equipe.map(i => '<span>' + esc(nome(g, i)) + '</span>').join("") + '</div>'; }
+
+function telaVoto(g) {
+  const n = g.nomes.length;
+  if (g.votoMesa) {
+    const prontos = g.votos.every(v => v !== null);
+    return topbar() + dica("<b>Votação na mesa.</b> Contem até 3 e todos mostram o polegar juntos. O líder registra o voto de cada um.") +
+      '<div class="leader"><div class="label">Equipe proposta por ' + esc(nome(g, g.lider)) + '</div>' + linhaEquipe(g) + '</div>' +
+      '<div class="stack">' + g.nomes.map((nm, i) => '<div class="vrow"><b>' + esc(nm) + '</b><div class="seg"><button class="' + (g.votos[i] === true ? "y" : "") + '" data-act="mesa-voto" data-i="' + i + '" data-v="1" aria-label="' + esc(nm) + ' aprova">👍</button><button class="' + (g.votos[i] === false ? "n" : "") + '" data-act="mesa-voto" data-i="' + i + '" data-v="0" aria-label="' + esc(nm) + ' rejeita">👎</button></div></div>').join("") + '</div>' +
+      '<button class="btn btn-primary" data-act="mesa-fechar"' + (prontos ? "" : " disabled") + '>' + (prontos ? "Registrar votos" : "Falta registrar " + g.votos.filter(v => v === null).length) + '</button>';
+  }
+  const i = g.cursor;
+  if (!g.secreto) {
+    return topbar() + dica(i > 0 ? "<b>Voto guardado.</b> Passe o celular para " + esc(nome(g, i)) + "." : "<b>Votação secreta.</b> O celular passa por todos. Os votos só aparecem no final.") +
+      '<div class="leader"><div class="label">Equipe proposta por ' + esc(nome(g, g.lider)) + '</div>' + linhaEquipe(g) + '</div>' +
+      handoff(nome(g, i), "Voto " + (i + 1) + " de " + n, "Sou " + esc(nome(g, i)) + ": votar", "ver-voto");
+  }
+  return topbar() + dica("<b>" + esc(nome(g, i)) + ", você aprova esta equipe?</b>") +
+    '<div class="leader"><div class="label">Missão ' + (g.missao + 1) + ' · equipe</div>' + linhaEquipe(g) + '</div>' +
+    '<div class="vote-btns"><button class="vbtn yes" data-act="votar" data-v="1"><span class="ic">👍</span>Aprovo</button><button class="vbtn no" data-act="votar" data-v="0"><span class="ic">👎</span>Rejeito</button></div>';
+}
+
+function telaVotoRes(g) {
+  const p = ultimaProposta(g), sim = p.votos.filter(v => v).length, nao = p.votos.length - sim;
+  let btn;
+  if (p.aprovada) btn = '<button class="btn btn-primary" data-act="pos-voto">Começar a missão</button>';
+  else if (g.rejeicoes >= MAX_REJ) btn = '<button class="btn btn-primary" data-act="pos-voto">Ver resultado</button>';
+  else btn = '<button class="btn btn-primary" data-act="pos-voto">Próximo líder: ' + esc(nome(g, (g.lider + 1) % g.nomes.length)) + '</button>';
+  const aviso = !p.aprovada && g.rejeicoes >= MAX_REJ ? "5ª rejeição seguida. Os espiões vencem!" : !p.aprovada && g.rejeicoes === MAX_REJ - 1 ? "Atenção: a próxima rejeição dá a vitória aos espiões." : "";
+  return topbar() + dica("<b>Resultado da votação.</b> Todos podem ver quem votou o quê.") +
+    '<div class="result"><div class="label">Equipe de ' + esc(nome(g, p.lider)) + '</div>' + linhaEquipe(g) +
+      '<div class="big" style="color:' + (p.aprovada ? "var(--ok)" : "var(--accent)") + '">' + (p.aprovada ? "Aprovada" : "Rejeitada") + '</div><div class="label">' + sim + ' a favor · ' + nao + ' contra</div>' +
+      '<div class="tally">' + g.nomes.map((nm, i) => '<div><span>' + esc(nm) + '</span><span class="' + (p.votos[i] ? "y" : "n") + '">' + (p.votos[i] ? "👍 aprovou" : "👎 rejeitou") + '</span></div>').join("") + '</div>' +
+      (aviso ? '<div class="notice"><b>' + aviso + '</b></div>' : "") +
+    '</div>' + btn;
+}
+
+function telaMissao(g) {
+  const i = g.equipe[g.cursor], k = g.equipe.length;
+  if (!g.secreto) {
+    return topbar() + dica(g.cursor > 0 ? "<b>Carta guardada.</b> Passe o celular para " + esc(nome(g, i)) + "." : "<b>Missão " + (g.missao + 1) + " em andamento.</b> Só quem está na equipe joga, um de cada vez e escondido.") +
+      '<div class="leader"><div class="label">Equipe</div>' + linhaEquipe(g) + '</div>' +
+      handoff(nome(g, i), "Carta " + (g.cursor + 1) + " de " + k, "Sou " + esc(nome(g, i)) + ": jogar carta", "ver-missao");
+  }
+  const esp = ehEspiao(g, i);
+  return topbar() + dica("<b>" + esc(nome(g, i)) + ", escolha sua carta.</b> " + (esp ? "Você é espião: pode sabotar ou disfarçar." : "Você é da Resistência: sempre joga Sucesso.")) +
+    '<div class="vote-btns"><button class="vbtn suc" data-act="carta" data-v="1"><span class="ic">✓</span>Sucesso</button><button class="vbtn fra" data-act="carta" data-v="0"' + (esp ? "" : " disabled aria-disabled=\"true\"") + '><span class="ic">✗</span>Fracasso</button></div>' +
+    (esp ? "" : '<p class="small muted" style="text-align:center">Fracasso fica bloqueado para a Resistência.</p>');
+}
+
+function telaMissaoRes(g) {
+  const r = g.resultados[g.missao], k = g.cartas.length, todas = g.revelado >= k;
+  return topbar() + dica(todas ? "<b>Cartas viradas.</b> Hora de discutir quem sabotou." : "<b>Cartas embaralhadas.</b> Juntem todo mundo e virem uma por uma.") +
+    '<div class="result"><div class="label">Missão ' + (g.missao + 1) + '</div>' + linhaEquipe(g) +
+      '<div class="cards">' + g.cartas.map((c, j) => '<div class="mcard' + (j < g.revelado ? (c ? " s" : " f") : "") + (S.virou && (S.virou === "todas" ? j < g.revelado : j === g.revelado - 1) ? " flip" : "") + '">' + (j < g.revelado ? (c ? "✓" : "✗") : "?") + '</div>').join("") + '</div>' +
+      (todas ? '<div class="big" style="color:' + (r.ok ? "var(--res)" : "var(--esp)") + '">' + (r.ok ? "Sucesso!" : "Fracasso!") + '</div><div class="label">' + r.falhas + ' carta' + (r.falhas === 1 ? "" : "s") + ' de fracasso' + (r.ok && r.falhas ? " (precisava de " + falhasPrecisa(g.nomes.length, g.missao) + ")" : "") + '</div>' : "") +
+    '</div>' +
+    (todas ? '<button class="btn btn-primary" data-act="pos-missao">Continuar</button>' : '<button class="btn btn-primary" data-act="virar">Virar ' + (g.revelado === 0 ? "a primeira" : "a próxima") + ' carta</button>' + (g.revelado === 0 ? '<button class="btn btn-ghost" data-act="virar-todas">Virar todas</button>' : ""));
+}
+
+function telaFim(g) {
+  const res = g.vencedor === "resistencia";
+  return topbar() +
+    '<div class="win" style="--tc:' + (res ? "var(--res)" : "var(--esp)") + '"><div class="label">Fim de jogo · ' + esc(g.motivo) + '</div><h1>' + (res ? "A Resistência venceu!" : "Os espiões venceram!") + '</h1></div>' +
+    tabuleiro(g) +
+    '<div class="section"><div class="label">Quem era quem</div><div class="roles">' + g.nomes.map((nm, i) => '<div><span>' + esc(nm) + '</span><span class="pill ' + (ehEspiao(g, i) ? "esp" : "res") + '">' + (ehEspiao(g, i) ? "Espião" : "Resistência") + '</span></div>').join("") + '</div></div>' +
+    historico(g) +
+    '<div class="row"><button class="btn btn-ghost" data-act="home">Home</button><button class="btn btn-primary" data-act="revanche">Jogar de novo</button></div>';
+}
+
+function telaJogo() {
+  const g = S.game;
+  return ({ papeis: telaPapeis, mesa: telaMesa, voto: telaVoto, votoRes: telaVotoRes, missao: telaMissao, missaoRes: telaMissaoRes, fim: telaFim }[g.fase] || telaMesa)(g);
+}
+
+function folhaRegras() {
+  if (!S.rules) return "";
+  const n = S.game ? S.game.nomes.length : parseNomes(S.setup.players).length;
+  return '<div class="sheet-bg" data-act="regras-fechar"><div class="sheet" role="dialog" aria-modal="true" aria-label="Regras do Infiltrados" data-stop="1">' +
+    '<div class="sheet-head"><h2>Regras do Infiltrados</h2><button class="icon-btn" data-act="regras-fechar" aria-label="Fechar">×</button></div>' +
+    '<div class="sheet-body">' + REGRAS.map(([id, t, h]) => '<div class="rule' + (id === S.rules ? " here" : "") + '" id="r-' + id + '"><h3>' + t + '</h3>' + (id === "tabela" ? tabelaMissoes(n) : h) + '</div>').join("") + '</div></div></div>';
+}
+
+function render() {
+  store.set("infiltrados.screen", S.screen);
+  const telas = { setup: telaSetup, tutorial: telaTutorial, jogo: telaJogo };
+  document.getElementById("app").innerHTML = (telas[S.screen] || telaSetup)() + folhaRegras();
+  if (S.rules) { const el = document.getElementById("r-" + S.rules); if (el) el.scrollIntoView({ block: "start" }); }
+}
+function topo() { try { window.scrollTo(0, 0); } catch (e) {} }
+
+/* ===== Eventos ===== */
+document.getElementById("app").addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if (!el || el.disabled) return;
+  if (el.classList.contains("sheet-bg") && e.target.closest("[data-stop]")) return;
+  const a = el.dataset.act, g = S.game, st = S.setup;
+  S.virou = null;
+  let subir = true;
+  switch (a) {
+    case "regras": S.rules = secaoAtual(); subir = false; break;
+    case "regras-fechar": S.rules = null; subir = false; break;
+    case "sair": S.restartAsk = false;
+      if (emJogo()) { S.exitAsk = true; subir = false; break; }
+      if (S.screen === "tutorial" && S.tutNext === "jogo") { S.screen = "jogo"; break; }
+      location.href = "../"; return;
+    case "sair-nao": S.exitAsk = false; break;
+    case "sair-sim": S.exitAsk = false; location.href = "../"; return;
+    case "home": S.game = null; salvar(); location.href = "../"; return;
+    case "recomecar": S.restartAsk = true; S.exitAsk = false; subir = false; break;
+    case "recomecar-nao": S.restartAsk = false; break;
+    case "recomecar-sim": S.restartAsk = false; S.setup.players = g.nomes.join(", "); S.game = null; iniciarPartida(); topo(); return;
+    case "revanche": S.setup.players = g.nomes.join(", "); S.game = null; iniciarPartida(); topo(); return;
+    case "continuar": S.screen = "jogo"; if (g) g.secreto = false; telaAcesa(); break;
+    case "descartar": S.game = null; salvar(); break;
+    case "opt-hist": st.historico = !st.historico; salvar(); subir = false; break;
+    case "opt-voto": st.votoMesa = el.dataset.v === "mesa"; salvar(); subir = false; break;
+    case "iniciar": iniciarPartida(); topo(); return;
+    case "tutorial": S.tut = 0; S.tutNext = "setup"; S.screen = "tutorial"; break;
+    case "tut-next": S.tut++; break;
+    case "tut-prev": S.tut--; break;
+    case "tut-fim": store.set("infiltrados.tutorialVisto", true); S.screen = S.tutNext === "jogo" && S.game ? "jogo" : "setup"; break;
+
+    case "ver-papel": g.secreto = true; break;
+    case "esconder-papel": proximo(g); if (g.cursor >= g.nomes.length) terminarPapeis(g); break;
+    case "rever": S.rever = "escolher"; break;
+    case "rever-quem": S.rever = { i: +el.dataset.i, ver: false }; break;
+    case "rever-ver": S.rever.ver = true; break;
+    case "rever-fechar": S.rever = null; break;
+    case "sel": { const i = +el.dataset.i, k = g.equipe.indexOf(i);
+      if (k >= 0) g.equipe.splice(k, 1); else if (g.equipe.length < tamanho(g)) g.equipe.push(i);
+      subir = false; break; }
+    case "propor": proporEquipe(g); break;
+    case "ver-voto": g.secreto = true; break;
+    case "votar": g.votos[g.cursor] = el.dataset.v === "1"; vibrar(40); proximo(g); if (g.cursor >= g.nomes.length) fecharVotacao(g); break;
+    case "mesa-voto": g.votos[+el.dataset.i] = el.dataset.v === "1"; subir = false; break;
+    case "mesa-fechar": if (g.votos.every(v => v !== null)) fecharVotacao(g); break;
+    case "pos-voto": depoisDoVoto(g); break;
+    case "ver-missao": g.secreto = true; break;
+    case "carta": jogarCarta(g, el.dataset.v === "1"); vibrar(40); break;
+    case "virar": g.revelado++; S.virou = "uma"; vibrar(30); subir = false; break;
+    case "virar-todas": g.revelado = g.cartas.length; S.virou = "todas"; subir = false; break;
+    case "pos-missao": depoisDaMissao(g); break;
+  }
+  salvar(); render(); if (subir) topo();
+});
+document.getElementById("app").addEventListener("input", e => {
+  const el = e.target; if (el.dataset.field !== "players") return;
+  S.setup.players = el.value; salvar();
+  const { ns, erro } = validarNomes(el.value), c = document.getElementById("count");
+  if (c) { c.innerHTML = contagem(ns, erro); c.classList.toggle("bad", !!(erro && ns.length)); }
+  const tb = document.querySelector(".section .mini"); if (tb) tb.parentElement.innerHTML = '<div class="label">Tamanho das equipes</div>' + tabelaMissoes(ns.length);
+});
+
+/* ===== Início ===== */
+// Ao atualizar a página, volta para a mesma fase. Tela secreta nunca reabre sozinha: volta para o "passe o celular".
+function boot() {
+  S.setup = Object.assign(setupPadrao(), store.get("infiltrados.setup") || {});
+  S.game = store.get("infiltrados.game");
+  let tela = store.get("infiltrados.screen") || "setup";
+  if (S.game) S.game.secreto = false;
+  if (tela === "tutorial") tela = "setup";
+  if (tela === "jogo" && !S.game) tela = "setup";
+  if (location.hash === "#como-jogar") { S.tut = 0; S.tutNext = "setup"; tela = "tutorial"; history.replaceState(null, "", location.pathname); }
+  S.screen = tela; render();
+  if (S.screen === "jogo") telaAcesa();
+}
+boot();
+</script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("../sw.js", { scope: "../" }).catch(() => {}); });
+}
+</script>
+</body>
+</html>
