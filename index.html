@@ -66,7 +66,7 @@ img { max-width: 100%; }
   --t-coral: #FF7A74; --t-mar: #2FC4C4; --t-sol: #F2B92E; --t-uva: #9C8CFF; --t-lima: #7BC74A; --t-ceu: #5AA8F5;
   color-scheme: dark;
 }
-html, body { height: 100%; }
+html, body { height: 100%; overscroll-behavior-y: none; }
 body {
   background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
@@ -597,7 +597,7 @@ function topbar(titulo) {
 function dica(html) { return '<div class="tip" role="status"><span class="dot"></span><div>' + html + '</div></div>'; }
 
 function confirmSair() {
-  return S.exitAsk ? '<div class="confirm"><b>Sair da partida?</b><span class="small">A partida fica salva neste celular e dá para continuar pelo menu.</span><div class="row"><button class="btn btn-ghost" data-act="sair-nao">Ficar</button><button class="btn btn-primary" data-act="sair-sim">Sair</button></div></div>' : "";
+  return S.exitAsk ? '<div class="confirm"><b>Sair da partida?</b><span class="small">A partida fica salva neste celular. Dá para continuar pela home ou começar uma nova.</span><div class="row"><button class="btn btn-ghost" data-act="sair-nao">Ficar</button><button class="btn btn-primary" data-act="sair-sim">Ir para a home</button></div><button class="btn btn-ghost" data-act="nova-partida">Encerrar e começar nova</button></div>' : "";
 }
 
 function placar(g, compacto) {
@@ -640,7 +640,7 @@ function cartaoJogo(j) {
 
 function telaMenu() {
   const g = S.game;
-  const resume = g && g.winner == null ? '<div class="resume"><b>Tem uma partida de Pabla em andamento.</b><div class="row"><button class="btn btn-primary" data-act="continuar">Continuar</button><button class="btn btn-ghost" data-act="descartar">Descartar</button></div></div>' : "";
+  const resume = g && g.winner == null ? '<div class="resume"><b>Tem uma partida de Pabla em andamento.</b><div class="row"><button class="btn btn-primary" data-act="continuar">Continuar</button><button class="btn btn-ghost" data-act="descartar">Começar nova</button></div></div>' : "";
   return topbar("Um Jogo Casual") +
     '<div class="hello"><h1>Bora jogar?</h1><p class="muted">Escolha um jogo. Todo mundo na mesma sala.</p></div>' + resume +
     '<div class="section"><div class="label">Jogos · ' + JOGOS.filter(j => j.pronto).length + '</div><div class="stack">' + JOGOS.map(cartaoJogo).join("") + '</div></div>' +
@@ -787,6 +787,7 @@ function folhaRegras() {
 }
 
 function render() {
+  store.set("pabla.screen", S.screen);
   const telas = { menu: telaMenu, setup: telaSetup, tutorial: telaTutorial, handoff: telaHandoff, card: telaCarta, sing: telaCantar, result: telaResultado, win: telaVitoria };
   document.getElementById("app").innerHTML = (telas[S.screen] || telaMenu)() + folhaRegras();
   if (S.rules) { const el = document.getElementById("r-" + S.rules); if (el) el.scrollIntoView({ block: "start" }); }
@@ -807,7 +808,7 @@ document.getElementById("app").addEventListener("click", e => {
     case "tut-prev": S.tut--; break;
     case "tut-fim": store.set("pabla.tutorialVisto", true); S.screen = S.tutNext || "menu"; break;
     case "continuar": S.screen = g.marks && g.marks.fim ? "result" : g.card ? "card" : "handoff"; telaAcesa(); break;
-    case "descartar": S.game = null; salvar(); break;
+    case "descartar": S.game = null; salvar(); S.err = ""; S.screen = "setup"; break;
     case "regras": S.rules = secaoAtual(); break;
     case "regras-fechar": S.rules = null; break;
     case "sair":
@@ -817,6 +818,7 @@ document.getElementById("app").addEventListener("click", e => {
       else S.exitAsk = true;
       break;
     case "sair-nao": S.exitAsk = false; break;
+    case "nova-partida": S.exitAsk = false; pararRelogio(); S.game = null; salvar(); S.err = ""; S.screen = "setup"; break;
     case "sair-sim": S.exitAsk = false; pararRelogio(); S.screen = "menu"; break;
     case "menu": S.game = null; salvar(); S.screen = "menu"; break;
     case "modo": S.setup.mode = el.dataset.v; S.err = ""; salvar(); break;
@@ -853,13 +855,26 @@ document.getElementById("app").addEventListener("input", e => {
 });
 
 /* ===== Início ===== */
+// Ao abrir ou atualizar a página, volta exatamente para onde a partida estava.
 function boot(data) {
   S.setup = (data && data.setup) || store.get("pabla.setup") || setupPadrao();
   S.game = (data && data.game) || store.get("pabla.game") || null;
-  S.screen = (data && data.screen) || "menu";
-  if (S.screen === "sing" && !(S.game && S.game.marks)) S.screen = "menu";
+  let tela = (data && data.screen) || store.get("pabla.screen") || "menu";
+  const g = S.game;
+  const emPartida = ["handoff", "card", "sing", "result", "win"];
+  if (emPartida.includes(tela) && !g) tela = "menu";
+  if (tela === "card" && !(g && g.card)) tela = "handoff";
+  if (tela === "sing" && !(g && g.marks && g.endsAt)) tela = g && g.card ? "card" : "handoff";
+  if (tela === "result" && !(g && g.marks && g.marks.fim)) tela = "handoff";
+  if (tela === "win" && !(g && g.winner != null)) tela = "handoff";
+  if (tela === "tutorial") tela = g && g.winner == null ? "handoff" : "menu";
+  S.screen = tela;
   render();
-  if (S.screen === "sing") iniciarRelogio();
+  if (S.screen === "sing") {
+    if (Date.now() >= S.game.endsAt) terminar("tempo");
+    else { initAudio(); iniciarRelogio(); }
+  }
+  if (S.game && emPartida.includes(S.screen)) telaAcesa();
 }
 try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ setup: S.setup, game: S.game, screen: S.screen })); } catch (e) {}
 if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(boot);
