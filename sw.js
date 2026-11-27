@@ -1,12 +1,12 @@
 // Service worker do Um Jogo Casual.
-// Guarda o app no aparelho para abrir sem internet (modo celular único). Páginas: home e infiltrados/.
+// Guarda o app no aparelho para abrir sem internet. O Lies precisa de internet para a sala.
 // Ao mudar qualquer arquivo do app, aumente a versão abaixo.
-const VERSAO = "v6";
+const VERSAO = "v7";
 const CACHE = "jogo-casual-" + VERSAO;
 const ARQUIVOS = [
   "./",
   "index.html",
-  "infiltrados/",
+  "lies/",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",
@@ -35,7 +35,7 @@ self.addEventListener("fetch", e => {
   if (req.mode === "navigate") {
     e.respondWith(
       fetch(req).then(res => {
-        // Cada página fica guardada no seu próprio endereço (home e Infiltrados).
+        // Cada página fica guardada no seu próprio endereço (home e Lies).
         if (res.ok && !res.redirected) { const copia = res.clone(); caches.open(CACHE).then(c => c.put(req, copia)); }
         return res;
       }).catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match("index.html"))

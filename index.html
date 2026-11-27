@@ -587,7 +587,7 @@ function secaoAtual() {
 }
 
 /* ===== Telas ===== */
-const LOGO_INF = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l16 6v12c0 10-7 18-16 22C15 40 8 32 8 22V10z" fill="#fff"/><path d="M13 24c3-5 7-7.5 11-7.5S32 19 35 24c-3 5-7 7.5-11 7.5S16 29 13 24z" fill="#6C5AD0"/><circle cx="24" cy="24" r="3.6" fill="#fff"/></svg>';
+const LOGO_LIES = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l16 6v12c0 10-7 18-16 22C15 40 8 32 8 22V10z" fill="#fff"/><path d="M13 24c3-5 7-7.5 11-7.5S32 19 35 24c-3 5-7 7.5-11 7.5S16 29 13 24z" fill="#6C5AD0"/><circle cx="24" cy="24" r="3.6" fill="#fff"/></svg>';
 const LOGO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 26c3-6 6-6 9 0s6 6 9 0 6-6 9 0 5 5 7 2" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="34" cy="12" r="4" fill="#fff"/><path d="M38 12V4l5 2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><ellipse cx="16" cy="38" rx="9" ry="4" fill="#fff" opacity=".9"/></svg>';
 
 function topbar(titulo) {
@@ -628,10 +628,10 @@ const JOGOS = [
     acao: "preparar", tutorial: "tutorial"
   },
   {
-    id: "infiltrados", nome: "Infiltrados", logo: LOGO_INF, cor: "var(--t-uva)", sub: "Blefe · Resistência contra espiões", pronto: true,
+    id: "lies", nome: "Lies", logo: LOGO_LIES, cor: "var(--t-uva)", sub: "Blefe · cada um no seu celular", pronto: true,
     resumo: "Missões secretas com espiões infiltrados. Descubra quem está sabotando, ou sabote sem ser pego.",
     pessoas: "5 a 10", idade: "10+", tipo: "Dedução, blefe", duracao: "20 a 30 min",
-    acao: "abrir-infiltrados", tutorial: "como-infiltrados"
+    acao: "abrir-lies"
   }
 ];
 
@@ -816,8 +816,7 @@ document.getElementById("app").addEventListener("click", e => {
   switch (a) {
     case "toggle": S.open = S.open === el.dataset.v ? null : el.dataset.v; break;
     case "preparar": S.err = ""; S.screen = "setup"; break;
-    case "abrir-infiltrados": location.href = "infiltrados/"; return;
-    case "como-infiltrados": location.href = "infiltrados/#como-jogar"; return;
+    case "abrir-lies": location.href = "lies/"; return;
     case "tutorial": S.tut = 0; S.tutNext = "menu"; S.screen = "tutorial"; break;
     case "tut-next": S.tut++; break;
     case "tut-prev": S.tut--; break;

@@ -2,11 +2,13 @@
   Cache-Control: no-cache
 /index.html
   Cache-Control: no-cache
-/infiltrados/*
+/lies/*
   Cache-Control: no-cache
 /manifest.webmanifest
   Cache-Control: no-cache
 /icons/*
   Cache-Control: public, max-age=604800
 /README.md
+  X-Robots-Tag: noindex
+/servidor-lies/*
   X-Robots-Tag: noindex
