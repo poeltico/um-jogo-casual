@@ -99,6 +99,7 @@ textarea { resize: vertical; min-height: 48px; }
 /* Barra superior */
 .topbar { display: flex; align-items: center; gap: 8px; }
 .topbar .brand { font-family: var(--display); font-size: 22px; flex: 1; min-width: 0; color: var(--accent); }
+.text-btn { height: 44px; padding: 0 12px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; font-size: 14px; flex: none; white-space: nowrap; }
 .icon-btn { width: 44px; height: 44px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); display: grid; place-items: center; font-weight: 700; font-size: 18px; flex: none; }
 .tip { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px; font-size: 15px; display: flex; gap: 10px; align-items: flex-start; }
 .tip b { color: var(--accent); }
@@ -592,7 +593,12 @@ function topbar(titulo) {
   return '<div class="topbar">' +
     (S.screen === "menu" ? "" : '<button class="icon-btn" data-act="sair" aria-label="Voltar ao menu">←</button>') +
     '<div class="brand">' + esc(titulo) + '</div>' +
-    '<button class="icon-btn" data-act="regras" aria-label="Regras">?</button></div>';
+    (emJogo() ? '<button class="text-btn" data-act="recomecar">↻ Recomeçar</button>' : "") +
+    '<button class="icon-btn" data-act="regras" aria-label="Regras">?</button></div>' + confirmSair() + confirmRecomecar();
+}
+function emJogo() { return !!S.game && ["handoff", "card", "sing", "result"].includes(S.screen); }
+function confirmRecomecar() {
+  return S.restartAsk ? '<div class="confirm" role="alertdialog" aria-label="Recomeçar a partida"><b>Recomeçar a partida?</b><span class="small">A partida atual será perdida: o placar volta a zero e os mesmos times começam de novo.</span><div class="row"><button class="btn btn-ghost" data-act="recomecar-nao">Cancelar</button><button class="btn btn-primary" data-act="recomecar-sim">Recomeçar</button></div></div>' : "";
 }
 function dica(html) { return '<div class="tip" role="status"><span class="dot"></span><div>' + html + '</div></div>'; }
 
@@ -694,7 +700,7 @@ function telaHandoff() {
   const g = S.game, c = cantorAtual(g);
   const tc = c.time ? "var(--t-" + c.time.color + ")" : "var(--accent)";
   const sub = c.time ? esc(c.time.name) : "Cada um por si";
-  return topbar("Pabla") + confirmSair() +
+  return topbar("Pabla") +
     dica("<b>Passe o celular.</b> Ninguém além de " + esc(c.nome) + " deve olhar a tela agora.") +
     '<div class="handoff" style="--tc:' + tc + '"><div class="label">' + sub + ' · vez de</div><div class="who">' + esc(c.nome) + '</div>' +
     '<button class="btn btn-primary" data-act="ver-carta">Sou ' + esc(c.nome) + ': ver a carta</button></div>' +
@@ -704,7 +710,7 @@ function telaHandoff() {
 
 function telaCarta() {
   const g = S.game, c = cantorAtual(g);
-  return topbar("Pabla") + confirmSair() +
+  return topbar("Pabla") +
     dica("<b>" + esc(c.nome) + ", escolha uma música.</b> Leia o trecho, lembre a melodia e toque em Começar.") +
     '<div class="card">' + [0, 1, 2, 3].map(i => {
       const m = musica(g, i);
@@ -811,13 +817,16 @@ document.getElementById("app").addEventListener("click", e => {
     case "descartar": S.game = null; salvar(); S.err = ""; S.screen = "setup"; break;
     case "regras": S.rules = secaoAtual(); break;
     case "regras-fechar": S.rules = null; break;
-    case "sair":
+    case "sair": S.restartAsk = false;
       if (S.screen === "win") { S.game = null; salvar(); S.screen = "menu"; }
       else if (S.screen === "setup" || S.screen === "tutorial") S.screen = "menu";
       else if (S.screen === "sing") { terminar("desistiu"); return; }
       else S.exitAsk = true;
       break;
     case "sair-nao": S.exitAsk = false; break;
+    case "recomecar": S.restartAsk = true; S.exitAsk = false; break;
+    case "recomecar-nao": S.restartAsk = false; break;
+    case "recomecar-sim": S.restartAsk = false; pararRelogio(); S.game = null; iniciarPartida(); return;
     case "nova-partida": S.exitAsk = false; pararRelogio(); S.game = null; salvar(); S.err = ""; S.screen = "setup"; break;
     case "sair-sim": S.exitAsk = false; pararRelogio(); S.screen = "menu"; break;
     case "menu": S.game = null; salvar(); S.screen = "menu"; break;
