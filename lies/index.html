@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Jogo Casual">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Lies · Um Jogo Casual</title>
+<meta name="theme-color" content="#E8336D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+[hidden] { display: none !important; }
+</style>
+<style>
+/* Estilo base copiado do index.html (mesmo visual do Pabla). Ao mudar o visual base lá, copie para cá. */
+/* Layout: uma coluna estreita de celular; cada tela é um "palco" com barra de dica no topo e ação principal embaixo. */
+:root {
+  --bg: #F3F2FA;
+  --surface: #FFFFFF;
+  --ink: #1D1B3A;
+  --muted: #64628A;
+  --line: #DEDCEE;
+  --accent: #E8336D;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #FDE2EB;
+  --warn: #F5B700;
+  --warn-soft: #FFF3C9;
+  --ok: #129A6B;
+  --ok-soft: #DDF4EA;
+  --stripe-1: #E3F4F4;
+  --stripe-2: #E8EEFC;
+  --stripe-3: #EFEAFC;
+  --t-coral: #F0544F;
+  --t-mar: #0E9C9C;
+  --t-sol: #D99A00;
+  --t-uva: #6C5AD0;
+  --t-lima: #4E9A22;
+  --t-ceu: #2A86E0;
+  --display: "Bagel Fat One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141329; --surface: #1F1D3B; --ink: #F1F0FF; --muted: #A6A4CA; --line: #34315B;
+    --accent: #FF5C8E; --accent-ink: #1A0710; --accent-soft: #4A1D31;
+    --warn: #FFCC3D; --warn-soft: #4A3A08; --ok: #3CCB95; --ok-soft: #123A2C;
+    --stripe-1: #173638; --stripe-2: #1C2847; --stripe-3: #2A2350;
+    --t-coral: #FF7A74; --t-mar: #2FC4C4; --t-sol: #F2B92E; --t-uva: #9C8CFF; --t-lima: #7BC74A; --t-ceu: #5AA8F5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141329; --surface: #1F1D3B; --ink: #F1F0FF; --muted: #A6A4CA; --line: #34315B;
+  --accent: #FF5C8E; --accent-ink: #1A0710; --accent-soft: #4A1D31;
+  --warn: #FFCC3D; --warn-soft: #4A3A08; --ok: #3CCB95; --ok-soft: #123A2C;
+  --stripe-1: #173638; --stripe-2: #1C2847; --stripe-3: #2A2350;
+  --t-coral: #FF7A74; --t-mar: #2FC4C4; --t-sol: #F2B92E; --t-uva: #9C8CFF; --t-lima: #7BC74A; --t-ceu: #5AA8F5;
+  color-scheme: dark;
+}
+html, body { height: 100%; overscroll-behavior-y: none; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+#app { max-width: 540px; margin: 0 auto; padding-block: 12px 32px; display: flex; flex-direction: column; gap: 16px; min-height: 100%; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+input, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; box-sizing: border-box; }
+textarea { resize: vertical; min-height: 48px; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+
+/* Botões */
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 20px; border-radius: 16px; font-weight: 700; font-size: 17px; width: 100%; box-sizing: border-box; transition: transform .08s ease; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { background: var(--surface); border: 1.5px solid var(--line); }
+.btn-ok { background: var(--ok); color: #fff; }
+.btn-warn { background: var(--warn-soft); color: var(--ink); border: 1.5px solid var(--warn); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+
+/* Barra superior */
+.topbar { display: flex; align-items: center; gap: 8px; }
+.topbar .brand { font-family: var(--display); font-size: 22px; flex: 1; min-width: 0; color: var(--accent); }
+.text-btn { height: 44px; padding: 0 12px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; font-size: 14px; flex: none; white-space: nowrap; }
+.icon-btn { width: 44px; height: 44px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); display: grid; place-items: center; font-weight: 700; font-size: 18px; flex: none; }
+.tip { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px; font-size: 15px; display: flex; gap: 10px; align-items: flex-start; }
+.tip b { color: var(--accent); }
+.tip .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-top: 7px; flex: none; }
+
+/* Menu */
+.hello h1 { font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1.05; }
+.game-card { background: var(--surface); border-radius: 22px; border: 1.5px solid var(--line); overflow: hidden; }
+.game-head { display: flex; gap: 14px; align-items: center; padding: 16px; width: 100%; text-align: left; }
+.logo { width: 64px; height: 64px; border-radius: 18px; background: var(--accent); display: grid; place-items: center; flex: none; }
+.logo svg { width: 44px; height: 44px; }
+.game-head h2 { font-family: var(--display); font-weight: 400; font-size: 28px; line-height: 1; }
+.game-head .chev { margin-left: auto; font-size: 20px; transition: transform .2s; }
+.game-card.open .chev { transform: rotate(180deg); }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 16px; }
+.fact { background: var(--bg); border-radius: 14px; padding: 10px 12px; }
+.fact .v { font-weight: 700; }
+.fact.wide { grid-column: 1 / -1; }
+.game-actions { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.soon { border: 1.5px dashed var(--line); border-radius: 22px; padding: 16px; color: var(--muted); }
+.resume { background: var(--accent-soft); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Preparação */
+.section { display: flex; flex-direction: column; gap: 10px; }
+.modes { display: flex; flex-direction: column; gap: 8px; }
+.mode { text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+.mode .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); flex: none; margin-top: 2px; display: grid; place-items: center; }
+.mode.on { border-color: var(--accent); }
+.mode.on .radio { border-color: var(--accent); }
+.mode.on .radio::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.mode b { display: block; }
+.team { background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 8px; border-left: 8px solid var(--tc); }
+.team-top { display: flex; gap: 8px; align-items: center; }
+.team-top input { font-weight: 700; }
+.swatch { width: 14px; height: 14px; border-radius: 50%; background: var(--tc); flex: none; }
+.notice { background: var(--warn-soft); border: 1.5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.error { background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; font-weight: 500; }
+.pack { display: flex; justify-content: space-between; gap: 12px; align-items: center; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.pack.off { opacity: .55; }
+.pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--bg); white-space: nowrap; }
+.pill.on { background: var(--ok-soft); color: var(--ok); }
+
+/* Placar */
+.board { display: flex; flex-direction: column; gap: 8px; }
+.score-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; }
+.score-row .name { font-weight: 700; display: flex; gap: 8px; align-items: center; min-width: 0; }
+.score-row .name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score-row .pts { font-variant-numeric: tabular-nums; font-weight: 700; }
+.bar { grid-column: 1 / -1; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--tc, var(--accent)); border-radius: 99px; }
+
+/* Passar o celular */
+.handoff { background: var(--surface); border-radius: 24px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; text-align: center; border-top: 10px solid var(--tc, var(--accent)); }
+.handoff .who { font-family: var(--display); font-weight: 400; font-size: 40px; line-height: 1.05; word-break: break-word; }
+
+/* Carta */
+.card { background: var(--surface); border-radius: 24px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1.5px solid var(--line); }
+.song { text-align: left; border-radius: 16px; padding: 14px 14px 14px 16px; display: flex; flex-direction: column; gap: 2px; border: 2.5px solid transparent; position: relative; }
+.song:nth-child(1) { background: var(--stripe-1); }
+.song:nth-child(2) { background: var(--stripe-2); }
+.song:nth-child(3) { background: var(--stripe-3); }
+.song.desafio { background: var(--accent-soft); }
+.song.sel { border-color: var(--accent); }
+.song .t { font-weight: 700; font-size: 18px; line-height: 1.2; padding-right: 64px; }
+.song .a { font-size: 14px; color: var(--muted); }
+.song .l { font-style: italic; font-size: 15px; margin-top: 4px; }
+.song .tag { position: absolute; top: 12px; right: 12px; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--surface); }
+.song.desafio .tag { background: var(--accent); color: var(--accent-ink); }
+
+/* Cantando */
+.stage { background: var(--surface); border-radius: 24px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; border: 1.5px solid var(--line); transition: background .3s; }
+.stage.dance { background: var(--warn-soft); border-color: var(--warn); }
+.ring { position: relative; width: 190px; height: 190px; max-width: 100%; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .track { stroke: var(--line); }
+.ring .prog { stroke: var(--accent); transition: stroke-dashoffset .25s linear; }
+.stage.dance .ring .prog { stroke: var(--warn); }
+.ring .num { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-size: 64px; font-variant-numeric: tabular-nums; }
+.now-song { font-size: 14px; color: var(--muted); }
+.now-song b { color: var(--ink); }
+.dance-msg { font-weight: 700; }
+.marks { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.mark { padding: 6px 12px; border-radius: 99px; background: var(--bg); font-weight: 700; font-size: 14px; }
+.mark.ok { background: var(--ok-soft); color: var(--ok); }
+.singer-val { font-weight: 700; font-size: 18px; }
+.chooser { background: var(--bg); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip { padding: 10px 14px; border-radius: 99px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; }
+
+/* Resultado e vitória */
+.result { background: var(--surface); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: center; border: 1.5px solid var(--line); }
+.big { font-family: var(--display); font-size: 56px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.answer { background: var(--bg); border-radius: 14px; padding: 12px; }
+.win { text-align: center; display: flex; flex-direction: column; gap: 12px; padding-block: 12px; }
+.win h1 { font-family: var(--display); font-weight: 400; font-size: 44px; line-height: 1.05; color: var(--tc, var(--accent)); word-break: break-word; }
+.log { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.log div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.log div span:last-child { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+
+/* Tutorial */
+.tut { background: var(--surface); border-radius: 24px; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; border: 1.5px solid var(--line); }
+.tut .step { font-weight: 700; color: var(--accent); }
+.tut h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.05; }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); width: 22px; border-radius: 99px; }
+
+/* Regras */
+.sheet-bg { position: fixed; inset: 0; background: rgba(10, 8, 30, .5); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--bg); width: 100%; max-width: 560px; max-height: 88%; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; box-sizing: border-box; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sheet-head { display: flex; align-items: center; gap: 10px; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); }
+.sheet-head h2 { font-family: var(--display); font-weight: 400; font-size: 24px; flex: 1; }
+.sheet-body { overflow-y: auto; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 4px; }
+.rule { padding: 12px 14px; border-radius: 14px; scroll-margin-top: 8px; }
+.rule h3 { font-size: 17px; margin-bottom: 4px; }
+.rule ul { margin: 4px 0 0; padding-left: 20px; }
+.rule.here { background: var(--accent-soft); }
+.rule.here h3::after { content: "  · você está aqui"; font-size: 12px; color: var(--accent); }
+
+.confirm { background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ===== Lies ===== */
+:root { --res: var(--t-ceu); --esp: var(--accent); }
+.card-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.center { text-align: center; }
+.hero h1 { font-family: var(--display); font-weight: 400; font-size: 52px; line-height: 1; color: var(--accent); }
+.hero p { margin-top: 6px; }
+input.codigo { font-family: var(--display); font-size: 28px; letter-spacing: .2em; text-transform: uppercase; text-align: center; }
+.divisor { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
+.divisor::before, .divisor::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.erro { background: var(--accent-soft); border: 1.5px solid var(--accent); border-radius: 14px; padding: 10px 14px; font-weight: 500; }
+.aviso { background: var(--warn-soft); border: 1.5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.btn.small { min-height: 42px; font-size: 15px; padding: 8px 12px; }
+.btn-danger { background: var(--accent); color: var(--accent-ink); }
+.codigo-grande { font-family: var(--display); font-size: 56px; letter-spacing: .14em; color: var(--accent); line-height: 1; }
+.qr { background: #fff; padding: 10px; border-radius: 14px; width: 168px; height: 168px; margin: 0 auto; box-sizing: content-box; }
+.qr img, .qr canvas { width: 100% !important; height: 100% !important; }
+.pessoas { display: flex; flex-direction: column; gap: 8px; }
+.pessoa { display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 14px; padding: 10px 12px; }
+.pessoa .nome { flex: 1; font-weight: 700; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; }
+.dot.on { background: var(--ok); }
+.tag { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.roda { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 700; }
+.roda .seta { color: var(--muted); }
+.pausa { background: var(--warn-soft); border: 1.5px solid var(--warn); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.conexao { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); background: var(--warn-soft); border: 1.5px solid var(--warn); border-radius: 99px; padding: 6px 14px; font-weight: 700; font-size: 14px; z-index: 30; }
+.switch { text-align: left; background: var(--bg); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; width: 100%; }
+.switch .box { width: 44px; height: 26px; border-radius: 99px; background: var(--line); flex: none; position: relative; margin-top: 1px; transition: background .15s; }
+.switch .box::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .15s; }
+.switch.on { border-color: var(--accent); }
+.switch.on .box { background: var(--accent); }
+.switch.on .box::after { left: 21px; }
+.switch b { display: block; }
+.switch[disabled] { cursor: default; }
+
+.score { display: flex; align-items: stretch; gap: 10px; }
+.score > div { flex: 1; border-radius: 16px; padding: 8px 12px; background: var(--surface); border: 1.5px solid var(--line); text-align: center; }
+.score .v { font-family: var(--display); font-size: 30px; line-height: 1; }
+.score .res .v { color: var(--res); }
+.score .esp .v { color: var(--esp); }
+.missions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ms { aspect-ratio: 1; border-radius: 50%; border: 2.5px solid var(--line); background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; position: relative; }
+.ms .n { font-family: var(--display); font-size: 24px; }
+.ms .s { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+.ms.now { border-color: var(--ink); border-width: 3px; }
+.ms.ok { background: var(--res); border-color: var(--res); color: #fff; }
+.ms.bad { background: var(--esp); border-color: var(--esp); color: #fff; }
+.ms.ok .s, .ms.bad .s { color: #fff; }
+.ms .two { position: absolute; bottom: -8px; font-size: 10px; font-weight: 700; background: var(--warn); color: #1D1B3A; padding: 2px 6px; border-radius: 99px; white-space: nowrap; }
+.rej { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.rej .pips { display: flex; gap: 6px; }
+.rej .pips i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); box-sizing: border-box; }
+.rej .pips i.on { background: var(--warn); border-color: var(--warn); }
+.rej .pips i:last-child { border-color: var(--esp); }
+.rej .pips i:last-child.on { background: var(--esp); }
+
+.papel-fechado { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1.5px dashed var(--line); border-radius: 16px; padding: 10px 12px; }
+.papel-fechado span { flex: 1; font-weight: 700; }
+.papel-fechado .btn { width: auto; min-height: 40px; font-size: 15px; padding: 8px 14px; }
+.role { border-radius: 20px; padding: 18px; text-align: center; display: flex; flex-direction: column; gap: 10px; color: #fff; }
+.role.res { background: var(--res); }
+.role.esp { background: var(--esp); }
+.role h2 { font-family: var(--display); font-weight: 400; font-size: 38px; line-height: 1; }
+.role .mates { background: rgba(0,0,0,.18); border-radius: 14px; padding: 10px; }
+.role .mates b { font-size: 19px; }
+.role .btn { background: rgba(255,255,255,.2); color: #fff; min-height: 42px; font-size: 15px; }
+.revelar { text-align: center; }
+.revelar h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.05; }
+
+.leader { background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.leader.minha { border-color: var(--accent); border-width: 2.5px; }
+.leader .who { font-family: var(--display); font-size: 28px; line-height: 1.05; word-break: break-word; }
+.pick-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick { padding: 10px 14px; border-radius: 99px; background: var(--bg); border: 2px solid var(--line); font-weight: 700; min-height: 44px; }
+.pick.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pick.lead::after { content: " ★"; color: var(--warn); }
+.pick[disabled] { cursor: default; }
+.team-line { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.team-line span { background: var(--bg); padding: 6px 12px; border-radius: 99px; font-weight: 700; font-size: 15px; }
+.team-line span.eu { background: var(--ink); color: var(--bg); }
+
+.vote-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vbtn { min-height: 110px; border-radius: 20px; font-weight: 700; font-size: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 2.5px solid transparent; }
+.vbtn .ic { font-size: 38px; line-height: 1; }
+.vbtn.yes { background: var(--ok-soft); color: var(--ok); }
+.vbtn.no { background: var(--accent-soft); color: var(--accent); }
+.vbtn.yes.on { border-color: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.vbtn.no.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.vbtn.suc { background: var(--res); color: #fff; }
+.vbtn.fra { background: var(--esp); color: #fff; }
+.vbtn[disabled] { opacity: .3; cursor: not-allowed; }
+.falta { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; font-size: 14px; }
+.falta span { padding: 4px 10px; border-radius: 99px; background: var(--bg); font-weight: 700; }
+.falta span.ok { background: var(--ok-soft); color: var(--ok); }
+
+.tally { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.tally div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--bg); font-weight: 700; }
+.tally .y { color: var(--ok); }
+.tally .n { color: var(--accent); }
+
+.cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.mcard { width: 60px; height: 86px; border-radius: 12px; display: grid; place-items: center; font-family: var(--display); font-size: 28px; background: var(--line); color: var(--muted); }
+.mcard.s { background: var(--res); color: #fff; }
+.mcard.f { background: var(--esp); color: #fff; }
+.mcard.flip { animation: flip .35s ease; }
+@keyframes flip { from { transform: rotateY(90deg); } to { transform: rotateY(0); } }
+
+details.hist-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 10px 14px; }
+details.hist-box summary { font-weight: 700; cursor: pointer; }
+.hist { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.hi { background: var(--bg); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.hi .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.bad { background: var(--accent-soft); color: var(--accent); }
+.pill.res { background: var(--res); color: #fff; }
+.pill.esp { background: var(--esp); color: #fff; }
+.roles { display: flex; flex-direction: column; gap: 6px; }
+.roles div { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 700; }
+.mini { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mini th, .mini td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--line); }
+.mini th { color: var(--muted); font-weight: 700; }
+.mini tr.on td { background: var(--accent-soft); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div id="app" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+"use strict";
+/* ===== Lies =====
+   Jogo de blefe com missões, cada um no seu celular.
+   Modo básico: Resistência contra Espiões. O servidor das salas (pasta servidor-lies) guarda a partida
+   e manda a cada celular só o que ele pode ver. */
+
+const PARAMS = new URLSearchParams(location.search);
+const LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
+const SERVIDOR = PARAMS.get("servidor") || (LOCAL ? "http://localhost:8787" : "https://lies-salas.poeltico.workers.dev");
+const WS_BASE = SERVIDOR.replace(/^http/, "ws");
+const MIN = 5, MAX = 10;
+const ESPIOES = { 5: 2, 6: 2, 7: 3, 8: 3, 9: 3, 10: 4 };
+const TAMANHOS = { 5: [2, 3, 2, 3, 3], 6: [2, 3, 4, 3, 4], 7: [2, 3, 3, 4, 4], 8: [3, 4, 4, 5, 5], 9: [3, 4, 4, 5, 5], 10: [3, 4, 4, 5, 5] };
+
+/* ===== Estado local ===== */
+function ler(k, padrao) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : padrao; } catch { return padrao; } }
+function gravar(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+// O nome é o mesmo de outros jogos do app, para não digitar de novo.
+const S = {
+  nome: ler("lies-nome", ler("zodiac-nome", "")),
+  sessao: ler("lies-sessao", null), // { codigo, token }
+  codigoDigitado: (PARAMS.get("sala") || "").toUpperCase(),
+  historicoNovo: ler("lies-historico", true),
+  estado: null, voce: null, conexao: "off", erro: "", ocupado: false,
+  escolherLugar: null, aguardando: null,
+  regras: null, confirmar: null, primeiro: null,
+  verPapel: false, papelVisto: null, // papelVisto: chave da partida em que o papel já foi visto
+  revAntes: 0
+};
+
+/* ===== Conexão ===== */
+let ws = null, tentativas = 0, timerReconexao = null, timerPing = null, saindo = false;
+
+function conectar() {
+  if (!S.sessao) return;
+  clearTimeout(timerReconexao);
+  if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
+  saindo = false;
+  S.conexao = "conectando";
+  render();
+  const sock = new WebSocket(WS_BASE + "/sala/" + S.sessao.codigo + "/ws");
+  ws = sock;
+  sock.onopen = () => {
+    tentativas = 0;
+    sock.send(JSON.stringify({ t: "entrar", token: S.sessao.token, nome: S.nome }));
+    clearInterval(timerPing);
+    timerPing = setInterval(() => { if (sock.readyState === 1) sock.send("ping"); }, 25000);
+  };
+  sock.onmessage = e => { if (e.data !== "pong") receber(JSON.parse(e.data)); };
+  sock.onclose = ev => {
+    if (ws !== sock) return;
+    clearInterval(timerPing);
+    S.conexao = "off";
+    if (ev.code === 4004) { esquecerSala("Essa sala não existe mais. Ela some depois de um dia sem uso."); return; }
+    if (!saindo && S.sessao) timerReconexao = setTimeout(conectar, Math.min(10000, 1000 * 2 ** tentativas++));
+    render();
+  };
+}
+
+function enviar(m) {
+  if (ws && ws.readyState === 1) { ws.send(JSON.stringify(m)); return true; }
+  S.erro = "Sem conexão com a sala. Tentando de novo…";
+  render(); conectar();
+  return false;
+}
+// "seguir" e "virar" levam o passo: se duas pessoas tocarem juntas, só o primeiro toque vale.
+function jogar(acao) {
+  const j = S.estado && S.estado.jogo, guarda = acao.tipo === "seguir" || acao.tipo === "virar";
+  enviar({ t: "jogada", acao: guarda && j ? { ...acao, passo: j.passo } : acao });
+}
+
+function receber(m) {
+  if (m.t === "estado") {
+    const antes = S.estado;
+    S.estado = m.sala; S.voce = m.voce; S.conexao = "on"; S.escolherLugar = null; S.aguardando = null; S.erro = "";
+    avisar(antes, m.sala);
+    manterTelaAcesa();
+  } else if (m.t === "erro") {
+    S.erro = m.msg;
+  } else if (m.t === "naoExiste") {
+    esquecerSala("Não achei essa sala. Confira o código."); return;
+  } else if (m.t === "removido") {
+    esquecerSala("Você saiu da sala."); return;
+  } else if (m.t === "escolherLugar") {
+    S.conexao = "on"; S.escolherLugar = m.livres;
+  } else if (m.t === "aguardando") {
+    S.aguardando = m.nome;
+  }
+  render();
+}
+
+function esquecerSala(msg) {
+  saindo = true;
+  if (ws) try { ws.close(); } catch {}
+  ws = null;
+  S.sessao = null; gravar("lies-sessao", null);
+  S.estado = null; S.voce = null; S.escolherLugar = null; S.aguardando = null; S.confirmar = null;
+  S.conexao = "off"; S.erro = msg || "";
+  liberarTela(); render();
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && S.sessao) { tentativas = 0; conectar(); manterTelaAcesa(); }
+});
+window.addEventListener("online", () => { if (S.sessao) { tentativas = 0; conectar(); } });
+
+function novoToken() { return crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now(); }
+async function criarSala() {
+  const nome = S.nome.trim();
+  if (!nome) { S.erro = "Escreva seu nome."; render(); return; }
+  S.ocupado = true; S.erro = ""; render();
+  const token = novoToken();
+  try {
+    const r = await fetch(SERVIDOR + "/sala/nova", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, nome, historico: S.historicoNovo }) });
+    if (!r.ok) throw new Error("status " + r.status);
+    const { codigo } = await r.json();
+    S.sessao = { codigo, token }; gravar("lies-sessao", S.sessao);
+    conectar();
+  } catch (e) {
+    S.erro = "Não consegui criar a sala. Confira a internet e tente de novo.";
+  }
+  S.ocupado = false; render();
+}
+function entrarSala() {
+  const codigo = S.codigoDigitado.trim().toUpperCase();
+  if (!S.nome.trim()) { S.erro = "Escreva seu nome."; render(); return; }
+  if (!/^[A-Z]{4}$/.test(codigo)) { S.erro = "O código tem 4 letras."; render(); return; }
+  const token = S.sessao && S.sessao.codigo === codigo ? S.sessao.token : novoToken();
+  S.sessao = { codigo, token }; gravar("lies-sessao", S.sessao);
+  S.erro = ""; conectar();
+}
+
+/* ===== Tela acesa e vibração ===== */
+let wakeLock = null;
+async function manterTelaAcesa() {
+  if (!("wakeLock" in navigator) || !S.estado || wakeLock || document.visibilityState !== "visible") return;
+  try { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); } catch {}
+}
+function liberarTela() { if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; } }
+function vibrar(p) { try { navigator.vibrate && navigator.vibrate(p); } catch {} }
+
+// Vibra quando o celular precisa de você: virou líder, abriu a votação ou é sua vez na missão.
+function precisaDeMim(st) {
+  const j = st && st.jogo;
+  if (!j || st.fase !== "jogo") return null;
+  if (j.fase === "equipe" && j.lider === S.voce) return "lider" + j.missao + "-" + j.tentativa;
+  if (j.fase === "voto" && j.meuVoto === null) return "voto" + j.missao + "-" + j.tentativa;
+  if (j.fase === "missao" && j.equipe.includes(S.voce) && j.minhaCarta === null) return "missao" + j.missao;
+  return null;
+}
+function avisar(antes, depois) {
+  const a = precisaDeMim(antes), d = precisaDeMim(depois);
+  if (d && d !== a) vibrar([120, 60, 120]);
+  if (antes && antes.jogo && depois.jogo && depois.jogo.fase !== antes.jogo.fase) S.verPapel = false;
+  if (!depois.jogo) S.papelVisto = null;
+}
+
+/* ===== Ajudantes ===== */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function nomeDe(pid) {
+  const p = S.estado && S.estado.jogadores.find(x => x.id === pid);
+  return p ? p.nome : "alguém";
+}
+function Nome(pid) { return pid === S.voce ? "Você" : nomeDe(pid); }
+const lista = arr => arr.length <= 1 ? arr.join("") : arr.slice(0, -1).join(", ") + " e " + arr[arr.length - 1];
+const souCriador = () => S.estado && S.estado.criador === S.voce;
+const chavePartida = () => S.estado && S.estado.jogo ? S.estado.codigo + ":" + S.estado.jogo.id : null;
+
+/* ===== Peças ===== */
+function topbar(extra) {
+  const naSala = !!S.sessao;
+  return '<div class="topbar">' +
+    '<button class="icon-btn" data-act="' + (naSala ? "pedir-sair" : "home") + '" aria-label="' + (naSala ? "Sair da sala" : "Voltar para a home") + '">←</button>' +
+    '<div class="brand">Lies' + (S.estado ? ' <span class="small muted">· ' + esc(S.estado.codigo) + '</span>' : "") + '</div>' + (extra || "") +
+    '<button class="icon-btn" data-act="regras" aria-label="Regras">?</button></div>' + confirmacoes();
+}
+function confirmacoes() {
+  if (S.confirmar === "sair") {
+    const jogando = S.estado && (S.estado.fase === "jogo");
+    return '<div class="aviso" role="alertdialog"><b>Sair da sala?</b><span class="small">' +
+      (jogando ? "A partida fica pausada para todos até você voltar. Para voltar, abra o Lies de novo neste celular." : "Você pode entrar de novo pelo código.") +
+      '</span><div class="row"><button class="btn btn-ghost small" data-act="cancelar">Ficar</button><button class="btn btn-primary small" data-act="sair">Sair</button></div></div>';
+  }
+  if (S.confirmar === "recomecar") {
+    return '<div class="aviso" role="alertdialog"><b>Recomeçar a partida?</b><span class="small">A partida atual será perdida para todos. A mesa continua na mesma ordem e os papéis são sorteados de novo.</span><div class="row"><button class="btn btn-ghost small" data-act="cancelar">Cancelar</button><button class="btn btn-danger small" data-act="recomecar">Recomeçar</button></div></div>';
+  }
+  if (S.confirmar === "mesa") {
+    return '<div class="aviso" role="alertdialog"><b>Organizar a mesa de novo?</b><span class="small">A partida atual será perdida e todos respondem de novo quem está à esquerda.</span><div class="row"><button class="btn btn-ghost small" data-act="cancelar">Cancelar</button><button class="btn btn-danger small" data-act="refazer-mesa">Organizar</button></div></div>';
+  }
+  return "";
+}
+function blocoErro() { return S.erro ? '<div class="erro" role="alert">' + esc(S.erro) + '</div>' : ""; }
+function dica(html) { return '<div class="tip" role="status"><span class="dot" style="background:var(--accent)"></span><div>' + html + '</div></div>'; }
+
+function chaveHistorico(on, act, travado) {
+  return '<button class="switch' + (on ? " on" : "") + '" data-act="' + act + '" aria-pressed="' + on + '"' + (travado ? " disabled" : "") + '><span class="box"></span><span><b>Histórico de votações e equipes</b><span class="small muted">A mesa mostra quem estava em cada equipe, quem aprovou, quem rejeitou e se a missão deu certo. Desligado, cada um lembra de cabeça (no fim aparece tudo).</span></span></button>';
+}
+function tabelaMissoes(nSel) {
+  return '<table class="mini"><tr><th>Pessoas</th><th>Espiões</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th></tr>' +
+    Object.keys(TAMANHOS).map(k => '<tr' + (+k === nSel ? ' class="on"' : "") + '><td>' + k + '</td><td>' + ESPIOES[k] + '</td>' +
+      TAMANHOS[k].map((t, m) => '<td>' + t + (+k >= 7 && m === 3 ? "*" : "") + '</td>').join("") + '</tr>').join("") +
+    '</table><p class="small muted">* Na 4ª missão, com 7 ou mais pessoas, são precisos 2 fracassos para derrubar.</p>';
+}
+
+/* ===== Telas de entrada ===== */
+function telaInicio() {
+  const volta = S.sessao ? '<div class="aviso"><b>Você estava na sala ' + esc(S.sessao.codigo) + '.</b><div class="row"><button class="btn btn-primary small" data-act="reconectar">Voltar para a sala</button><button class="btn btn-ghost small" data-act="esquecer">Esquecer</button></div></div>' : "";
+  return topbar() +
+    '<div class="hero"><h1>Lies</h1><p class="muted">Missões secretas com espiões infiltrados. Descubra quem está sabotando, ou sabote sem ser pego. De 5 a 10 pessoas, cada uma no seu celular.</p></div>' +
+    volta + blocoErro() +
+    '<div class="card-box"><label class="label" for="nome">Seu nome</label><input id="nome" data-campo="nome" maxlength="16" autocomplete="nickname" value="' + esc(S.nome) + '" placeholder="Como te chamam na mesa"></div>' +
+    '<div class="card-box"><div class="label">Entrar numa sala</div><input class="codigo" data-campo="codigo" maxlength="4" autocapitalize="characters" autocomplete="off" value="' + esc(S.codigoDigitado) + '" placeholder="ABCD" aria-label="Código da sala"><button class="btn btn-primary" data-act="entrar">Entrar</button><span class="small muted center">Ou leia o QR code no celular de quem criou a sala.</span></div>' +
+    '<div class="divisor">ou</div>' +
+    '<div class="card-box"><div class="label">Criar uma sala nova</div>' + chaveHistorico(S.historicoNovo, "hist-novo") +
+    '<button class="btn btn-ghost" data-act="criar"' + (S.ocupado ? " disabled" : "") + '>' + (S.ocupado ? "Criando…" : "Criar sala") + '</button></div>' +
+    '<button class="btn btn-ghost" data-act="como">Como jogar</button>';
+}
+function telaConectando() {
+  return topbar() + blocoErro() + '<div class="card-box center"><b>Entrando na sala ' + esc(S.sessao.codigo) + '…</b><span class="small muted">Se demorar, confira a internet.</span></div>';
+}
+function telaEscolherLugar() {
+  if (S.aguardando) return topbar() + '<div class="card-box center"><b>Pedido enviado.</b><span class="muted">Esperando quem criou a sala liberar o lugar de ' + esc(S.aguardando) + '.</span></div>';
+  const livres = S.escolherLugar;
+  return topbar() + blocoErro() +
+    '<div class="card-box"><b>A partida já começou.</b><span class="small muted">Se você trocou de celular ou a página perdeu seus dados, escolha quem você é. Quem criou a sala confirma.</span>' +
+    (livres.length ? '<div class="chips" style="justify-content:flex-start">' + livres.map(p => '<button class="chip" data-act="pedir-lugar" data-v="' + p.id + '">' + esc(p.nome) + '</button>').join("") + '</div>' : '<span class="muted">Todos os lugares estão ocupados agora.</span>') +
+    '</div>';
+}
+function linkSala() { return location.origin + location.pathname + "?sala=" + S.estado.codigo; }
+
+function telaEspera() {
+  const st = S.estado, n = st.jogadores.length;
+  const criador = st.jogadores.find(p => p.id === st.criador);
+  const pessoas = st.jogadores.map(p => '<div class="pessoa"><span class="dot' + (p.conectado ? " on" : "") + '"></span><span class="nome">' + esc(p.nome) + (p.id === S.voce ? " (você)" : "") + '</span>' +
+    (p.id === st.criador ? '<span class="tag">criou a sala</span>' : "") +
+    (souCriador() && p.id !== st.criador ? '<button class="icon-btn" data-act="remover" data-v="' + p.id + '" aria-label="Tirar ' + esc(p.nome) + ' da sala">×</button>' : "") + '</div>').join("");
+  const info = n >= MIN ? n + " pessoas: " + ESPIOES[Math.min(n, MAX)] + " espiões e " + (n - ESPIOES[Math.min(n, MAX)]) + " da Resistência." : "Faltam " + (MIN - n) + " para começar (mínimo " + MIN + ").";
+  const acoes = souCriador()
+    ? '<div class="card-box"><div class="label">Opções</div>' + chaveHistorico(st.historico, "hist-sala") + '</div>' +
+      '<button class="btn btn-primary" data-act="organizar"' + (n < MIN ? " disabled" : "") + '>' + (n < MIN ? "Esperando mais gente (mínimo " + MIN + ")" : "Todos chegaram: organizar a mesa") + '</button>'
+    : '<div class="card-box center"><span class="muted">Histórico: <b>' + (st.historico ? "ligado" : "desligado") + '</b>. Esperando ' + esc(criador ? criador.nome : "quem criou a sala") + ' organizar a mesa.</span></div>';
+  return topbar() + blocoErro() +
+    '<div class="card-box center"><div class="label">Código da sala</div><div class="codigo-grande">' + esc(st.codigo) + '</div><div class="qr" id="qr" aria-label="QR code para entrar na sala"></div>' +
+    '<button class="btn btn-ghost small" data-act="compartilhar">Mandar o link</button></div>' +
+    '<div class="card-box"><div class="label">Na sala · ' + n + ' de ' + MAX + '</div><div class="pessoas">' + pessoas + '</div><span class="small muted">' + info + '</span></div>' + acoes;
+}
+
+function textoRoda(roda) {
+  return '<div class="roda">' + roda.map(p => '<span>' + esc(Nome(p)) + '</span>').join('<span class="seta">→</span>') + '<span class="seta">→</span><span>' + esc(Nome(roda[0])) + '</span></div>';
+}
+function telaOrdem() {
+  const st = S.estado, minha = st.esquerda[S.voce];
+  const outros = st.jogadores.filter(p => p.id !== S.voce);
+  const rs = st.rodaStatus || { ok: false, faltam: [], conflitos: [] };
+  let status;
+  if (rs.ok) status = '<div class="card-box"><div class="label">A mesa, no sentido horário</div>' + textoRoda(rs.roda) + '</div>';
+  else if (rs.conflitos && rs.conflitos.length) {
+    const alvos = [...new Set(rs.conflitos.map(p => st.esquerda[p]))];
+    status = '<div class="erro">' + alvos.map(a => esc(lista(rs.conflitos.filter(p => st.esquerda[p] === a).map(Nome))) + ' escolheram ' + esc(Nome(a)) + '.').join(" ") + ' Só uma pessoa pode estar à esquerda de cada um. Confiram e respondam de novo.</div>';
+  } else if (rs.rodaQuebrada) status = '<div class="erro">A roda não fecha: parece que são duas mesas separadas. Confiram quem está à esquerda de quem.</div>';
+  else status = '<div class="card-box small muted">Esperando: ' + esc(rs.faltam.map(Nome).join(", ")) + '</div>';
+  const pergunta = '<div class="card-box"><b>Quem está sentado à sua esquerda?</b><span class="small muted">A liderança anda no sentido horário: quem está à sua esquerda é o líder depois de você.</span><div class="chips" style="justify-content:flex-start">' +
+    outros.map(p => '<button class="chip' + (minha === p.id ? " on" : "") + '" data-act="esquerda" data-v="' + p.id + '" aria-pressed="' + (minha === p.id) + '">' + esc(p.nome) + '</button>').join("") + '</div></div>';
+  let comecar = "";
+  if (rs.ok && souCriador()) {
+    comecar = '<div class="card-box"><b>Quem é o primeiro líder?</b><div class="chips" style="justify-content:flex-start">' +
+      rs.roda.map(p => '<button class="chip' + (S.primeiro === p ? " on" : "") + '" data-act="primeiro" data-v="' + p + '">' + esc(Nome(p)) + '</button>').join("") +
+      '<button class="chip' + (S.primeiro === "sortear" ? " on" : "") + '" data-act="primeiro" data-v="sortear">Sortear</button></div>' +
+      '<button class="btn btn-primary" data-act="comecar"' + (S.primeiro ? "" : " disabled") + '>Sortear os papéis e começar</button></div>';
+  } else if (rs.ok) comecar = '<div class="card-box center muted">Esperando quem criou a sala escolher o primeiro líder.</div>';
+  return topbar() + blocoErro() + '<div class="hero"><h1 style="font-size:32px">Organizar a mesa</h1></div>' + pergunta + status + comecar +
+    (souCriador() ? '<button class="btn btn-ghost small" data-act="voltar-espera">Voltar para a sala de espera</button>' : "");
+}
+
+/* ===== Mesa ===== */
+function tabuleiro(j) {
+  const res = j.resultados.filter(r => r && r.ok).length, esp = j.resultados.filter(r => r && !r.ok).length;
+  return '<div class="score"><div class="res"><div class="label">Resistência</div><div class="v">' + res + '</div></div><div class="esp"><div class="label">Espiões</div><div class="v">' + esp + '</div></div></div>' +
+    '<div class="missions">' + j.tamanhos.map((t, m) => {
+      const r = j.resultados[m];
+      const cls = r ? (r.ok ? " ok" : " bad") : (m === j.missao && !j.fim ? " now" : "");
+      return '<div class="ms' + cls + '" aria-label="Missão ' + (m + 1) + ': ' + t + ' pessoas' + (r ? (r.ok ? ", sucesso" : ", fracasso") : "") + '"><span class="n">' + (r ? (r.ok ? "✓" : "✗") : t) + '</span><span class="s">' + (r ? "M" + (m + 1) : "pessoas") + '</span>' + (j.falhasPrecisa[m] > 1 && !r ? '<span class="two">2 falhas</span>' : "") + '</div>';
+    }).join("") + '</div>' +
+    '<div class="rej"><span class="small muted">Rejeições seguidas</span><span class="pips">' + [0, 1, 2, 3, 4].map(i => '<i class="' + (i < j.rejeicoes ? "on" : "") + '"></i>').join("") + '</span></div>';
+}
+
+function cartaoPapel(j) {
+  if (j.eu.espiao) {
+    const outros = j.eu.parceiros.map(nomeDe);
+    return '<div class="role esp"><div class="label" style="color:#fff">Você é</div><h2>Espião</h2><p>Sabote missões sem ser descoberto. Ganhe 3 fracassos.</p>' +
+      '<div class="mates">' + (outros.length > 1 ? "Os outros espiões são" : "O outro espião é") + '<br><b>' + esc(lista(outros)) + '</b></div>' +
+      '<button class="btn" data-act="esconder-papel">Esconder</button></div>';
+  }
+  return '<div class="role res"><div class="label" style="color:#fff">Você é da</div><h2>Resistência</h2><p>Há ' + j.totalEspioes + ' espiões na mesa. Descubra quem são e complete 3 missões. Você sempre joga Sucesso.</p>' +
+    '<button class="btn" data-act="esconder-papel">Esconder</button></div>';
+}
+function blocoPapel(j) {
+  if (j.fim) return "";
+  if (S.verPapel) return cartaoPapel(j);
+  return '<div class="papel-fechado"><span>Seu papel está escondido</span><button class="btn btn-ghost" data-act="ver-papel">Ver meu papel</button></div>';
+}
+// Na primeira vez de cada partida, o papel aparece numa tela própria.
+function telaRevelar(j) {
+  return topbar() + '<div class="card-box revelar"><div class="label">Papéis sorteados</div><h2>Olhe sem ninguém ver</h2><p class="muted">Seu papel aparece só no seu celular. Os espiões descobrem quem são os outros espiões.</p></div>' +
+    (S.verPapel ? cartaoPapel(j).replace('data-act="esconder-papel">Esconder', 'data-act="papel-ok">Esconder e ir para a mesa') : '<button class="btn btn-primary" data-act="ver-papel">Ver meu papel</button>');
+}
+
+function linhaEquipe(eq) { return '<div class="team-line">' + eq.map(p => '<span class="' + (p === S.voce ? "eu" : "") + '">' + esc(Nome(p)) + '</span>').join("") + '</div>'; }
+
+function faseEquipe(j, travado) {
+  const t = j.tamanhos[j.missao], sel = j.equipe.length, eu = j.lider === S.voce;
+  const precisa = j.falhasPrecisa[j.missao] > 1 ? " Nesta missão, só cai com 2 fracassos." : "";
+  const chips = j.ordem.map(p => '<button class="pick' + (j.equipe.includes(p) ? " on" : "") + (p === j.lider ? " lead" : "") + '"' + (eu && !travado ? ' data-act="marcar" data-v="' + p + '"' : " disabled") + ' aria-pressed="' + j.equipe.includes(p) + '">' + esc(Nome(p)) + '</button>').join("");
+  return (eu ? dica("<b>Você é o líder.</b> Escolha " + t + " pessoas para a missão " + (j.missao + 1) + ". Pode se incluir. Todos veem a sua escolha ao vivo.") : dica("<b>" + esc(nomeDe(j.lider)) + " está montando a equipe.</b> Discutam à vontade: acusar, defender e blefar faz parte.")) +
+    '<div class="leader' + (eu ? " minha" : "") + '"><div class="label">Missão ' + (j.missao + 1) + ' · líder · proposta ' + j.tentativa + ' de 5</div><div class="who">' + esc(Nome(j.lider)) + '</div>' +
+      '<span class="small muted">Equipe de ' + t + ' pessoas (' + sel + '/' + t + ').' + precisa + '</span>' +
+      '<div class="pick-grid">' + chips + '</div>' +
+      (eu ? '<button class="btn btn-primary" data-act="propor"' + (sel === t && !travado ? "" : " disabled") + '>' + (sel === t ? "Propor equipe para votação" : "Escolha " + t + " pessoas") + '</button>' : "") +
+    '</div>';
+}
+
+function faseVoto(j, travado) {
+  const faltam = j.ordem.filter(p => !j.jaVotaram.includes(p));
+  const v = j.meuVoto;
+  return dica(v === null ? "<b>Você aprova esta equipe?</b> O voto fica escondido até todos votarem." : "<b>Voto registrado.</b> Dá para mudar até a última pessoa votar.") +
+    '<div class="leader"><div class="label">Equipe proposta por ' + esc(Nome(j.lider)) + ' · missão ' + (j.missao + 1) + '</div>' + linhaEquipe(j.equipe) + '</div>' +
+    '<div class="vote-btns"><button class="vbtn yes' + (v === true ? " on" : "") + '" data-act="votar" data-v="1"' + (travado ? " disabled" : "") + '><span class="ic">👍</span>Aprovo</button><button class="vbtn no' + (v === false ? " on" : "") + '" data-act="votar" data-v="0"' + (travado ? " disabled" : "") + '><span class="ic">👎</span>Rejeito</button></div>' +
+    '<div class="card-box center"><div class="label">Já votaram ' + j.jaVotaram.length + ' de ' + j.ordem.length + '</div><div class="falta">' + j.ordem.map(p => '<span class="' + (j.jaVotaram.includes(p) ? "ok" : "") + '">' + (j.jaVotaram.includes(p) ? "✓ " : "") + esc(Nome(p)) + '</span>').join("") + '</div>' +
+    (faltam.length ? '<span class="small muted">Faltam: ' + esc(lista(faltam.map(Nome))) + '</span>' : "") + '</div>';
+}
+
+function faseVotoRes(j, travado) {
+  const p = j.ultima, sim = j.ordem.filter(x => p.votos[x]).length, nao = j.ordem.length - sim;
+  const ultimaRej = !p.aprovada && j.rejeicoes >= 5;
+  const btn = p.aprovada ? "Começar a missão" : ultimaRej ? "Ver resultado" : "Próximo líder: " + Nome(j.ordem[(j.ordem.indexOf(j.lider) + 1) % j.ordem.length]);
+  const aviso = ultimaRej ? "5ª rejeição seguida. Os espiões vencem!" : !p.aprovada && j.rejeicoes === 4 ? "Atenção: a próxima rejeição dá a vitória aos espiões." : "";
+  return dica("<b>Resultado da votação.</b> Agora todos veem quem votou o quê.") +
+    '<div class="result"><div class="label">Equipe de ' + esc(Nome(p.lider)) + '</div>' + linhaEquipe(p.equipe) +
+      '<div class="big" style="color:' + (p.aprovada ? "var(--ok)" : "var(--accent)") + '">' + (p.aprovada ? "Aprovada" : "Rejeitada") + '</div><div class="label">' + sim + ' a favor · ' + nao + ' contra</div>' +
+      '<div class="tally">' + j.ordem.map(x => '<div><span>' + esc(Nome(x)) + '</span><span class="' + (p.votos[x] ? "y" : "n") + '">' + (p.votos[x] ? "👍 aprovou" : "👎 rejeitou") + '</span></div>').join("") + '</div>' +
+      (aviso ? '<div class="aviso"><b>' + aviso + '</b></div>' : "") +
+    '</div><button class="btn btn-primary" data-act="seguir"' + (travado ? " disabled" : "") + '>' + esc(btn) + '</button>' +
+    '<p class="small muted center">Qualquer pessoa pode tocar quando todos tiverem visto.</p>';
+}
+
+function faseMissao(j, travado) {
+  const naEquipe = j.equipe.includes(S.voce), faltam = j.equipe.filter(p => !j.jaJogaram.includes(p));
+  let corpo;
+  if (naEquipe && j.minhaCarta === null) {
+    const esp = j.eu.espiao;
+    corpo = dica("<b>Escolha sua carta, sem mostrar a ninguém.</b> " + (esp ? "Você é espião: pode sabotar ou disfarçar." : "Você é da Resistência: sempre joga Sucesso.")) +
+      '<div class="vote-btns"><button class="vbtn suc" data-act="carta" data-v="1"' + (travado ? " disabled" : "") + '><span class="ic">✓</span>Sucesso</button><button class="vbtn fra" data-act="carta" data-v="0"' + (esp && !travado ? "" : " disabled") + '><span class="ic">✗</span>Fracasso</button></div>' +
+      (esp ? "" : '<p class="small muted center">Fracasso fica bloqueado para a Resistência.</p>');
+  } else {
+    corpo = dica(naEquipe ? "<b>Sua carta foi jogada.</b> Esperando o resto da equipe." : "<b>A equipe está jogando as cartas.</b> Ninguém vai saber quem jogou o quê.");
+  }
+  return corpo + '<div class="leader"><div class="label">Missão ' + (j.missao + 1) + ' · equipe · jogaram ' + j.jaJogaram.length + ' de ' + j.equipe.length + '</div>' +
+    '<div class="falta">' + j.equipe.map(p => '<span class="' + (j.jaJogaram.includes(p) ? "ok" : "") + '">' + (j.jaJogaram.includes(p) ? "✓ " : "") + esc(Nome(p)) + '</span>').join("") + '</div>' +
+    (faltam.length ? '<span class="small muted center">Faltam: ' + esc(lista(faltam.map(Nome))) + '</span>' : "") + '</div>';
+}
+
+function cartasHtml(j, animar) {
+  const rev = j.cartas.filter(c => c !== null).length;
+  return '<div class="cards">' + j.cartas.map((c, i) => '<div class="mcard' + (c === null ? "" : c ? " s" : " f") + (animar && c !== null && i >= S.revAntes ? " flip" : "") + '">' + (c === null ? "?" : c ? "✓" : "✗") + '</div>').join("") + '</div>' + (rev ? "" : "");
+}
+function faseMissaoRes(j, travado) {
+  const r = j.resultados[j.missao], rev = j.cartas.filter(c => c !== null).length, todas = rev === j.cartas.length;
+  return dica(todas ? "<b>Cartas viradas.</b> Hora de discutir quem sabotou." : "<b>Cartas embaralhadas.</b> Juntem todo mundo e virem uma por uma.") +
+    '<div class="result"><div class="label">Missão ' + (j.missao + 1) + '</div>' + linhaEquipe(r.equipe || j.equipe) + cartasHtml(j, true) +
+      (todas ? '<div class="big" style="color:' + (r.ok ? "var(--res)" : "var(--esp)") + '">' + (r.ok ? "Sucesso!" : "Fracasso!") + '</div><div class="label">' + r.falhas + ' carta' + (r.falhas === 1 ? "" : "s") + ' de fracasso' + (r.ok && r.falhas ? " (precisava de " + j.falhasPrecisa[j.missao] + ")" : "") + '</div>' : "") +
+    '</div>' +
+    (todas ? '<button class="btn btn-primary" data-act="seguir"' + (travado ? " disabled" : "") + '>Continuar</button>'
+      : '<button class="btn btn-primary" data-act="virar"' + (travado ? " disabled" : "") + '>Virar ' + (rev === 0 ? "a primeira" : "a próxima") + ' carta</button>' + (rev === 0 ? '<button class="btn btn-ghost" data-act="virar-todas"' + (travado ? " disabled" : "") + '>Virar todas</button>' : "")) +
+    '<p class="small muted center">Qualquer pessoa pode tocar.</p>';
+}
+
+function itemHist(p) {
+  const sim = Object.keys(p.votos).filter(x => p.votos[x]), nao = Object.keys(p.votos).filter(x => !p.votos[x]);
+  const ord = arr => S.estado.jogo.ordem.filter(x => arr.includes(x)).map(Nome);
+  return '<div class="hi"><div class="top"><b>Missão ' + (p.missao + 1) + ' · proposta ' + p.tentativa + '</b><span class="pill ' + (p.aprovada ? "ok" : "bad") + '">' + (p.aprovada ? "Aprovada" : "Rejeitada") + ' ' + sim.length + '×' + nao.length + '</span></div>' +
+    '<div>Líder <b>' + esc(Nome(p.lider)) + '</b> · Equipe: <b>' + esc(lista(p.equipe.map(Nome))) + '</b></div>' +
+    '<div class="muted">👍 ' + (esc(ord(sim).join(", ")) || "ninguém") + '<br>👎 ' + (esc(ord(nao).join(", ")) || "ninguém") + '</div>' +
+    (p.resultado ? '<div><span class="pill ' + (p.resultado.ok ? "res" : "esp") + '">' + (p.resultado.ok ? "Sucesso" : "Fracasso") + '</span> ' + p.resultado.falhas + ' carta' + (p.resultado.falhas === 1 ? "" : "s") + ' de fracasso</div>' : "") +
+  '</div>';
+}
+function blocoHistorico(j, aberto) {
+  if (!j.hist.length) return "";
+  return '<details class="hist-box"' + (aberto ? " open" : "") + '><summary>Histórico (' + j.hist.length + (j.hist.length === 1 ? " proposta" : " propostas") + ')</summary><div class="hist">' + j.hist.slice().reverse().map(itemHist).join("") + '</div></details>';
+}
+
+function pedidosLugar() {
+  return (S.estado.pedidos || []).map(p => '<div class="aviso"><b>Um celular quer o lugar de ' + esc(p.nome) + '.</b><span class="small">Libere só se ' + esc(p.nome) + ' trocou de celular ou perdeu a página. O celular antigo sai da mesa.</span><div class="row"><button class="btn btn-ghost small" data-act="negar" data-v="' + p.id + '">Não</button><button class="btn btn-primary small" data-act="liberar" data-v="' + p.id + '">Liberar</button></div></div>').join("");
+}
+function blocoPausa(st) {
+  const p = st.pausa;
+  if (!p) return "";
+  const falt = p.faltam.map(Nome);
+  return '<div class="pausa" role="status"><b>Partida pausada.</b><span class="small">' +
+    (falt.length ? "Esperando " + esc(lista(falt)) + " voltar. Ninguém joga até todos estarem conectados." : esc(p.manual) + " pausou a partida.") + '</span>' +
+    (p.manual && !falt.length ? '<button class="btn btn-primary small" data-act="despausar">Continuar a partida</button>' : "") + '</div>';
+}
+
+function telaJogo() {
+  const st = S.estado, j = st.jogo;
+  if (!j.fim && S.papelVisto !== chavePartida()) return telaRevelar(j);
+  const travado = !!st.pausa;
+  const extra = souCriador() ? '<button class="text-btn" data-act="pedir-recomecar">↻ Recomeçar</button>' : "";
+  const corpo = { equipe: faseEquipe, voto: faseVoto, votoRes: faseVotoRes, missao: faseMissao, missaoRes: faseMissaoRes }[j.fase](j, travado);
+  return topbar(extra) + pedidosLugar() + blocoPausa(st) + blocoErro() + blocoPapel(j) + tabuleiro(j) + corpo +
+    (j.historico ? blocoHistorico(j, false) : "") +
+    '<div class="row">' + (st.pausa && st.pausa.manual ? "" : '<button class="btn btn-ghost small" data-act="pausar">Pausar</button>') + (souCriador() ? '<button class="btn btn-ghost small" data-act="pedir-mesa">Mudar a mesa</button>' : "") + '</div>';
+}
+
+function telaFim() {
+  const st = S.estado, j = st.jogo, res = j.fim.vencedor === "resistencia";
+  const motivo = j.fim.motivo === "rejeicoes" ? "5 equipes rejeitadas seguidas" : res ? "3 missões com sucesso" : "3 missões sabotadas";
+  const acoes = souCriador()
+    ? '<button class="btn btn-primary" data-act="recomecar">Jogar de novo (mesma mesa)</button><button class="btn btn-ghost" data-act="pedir-mesa">Mudar a mesa</button>'
+    : '<div class="card-box center muted">Esperando quem criou a sala começar outra partida.</div>';
+  return topbar() + blocoErro() +
+    '<div class="win" style="--tc:' + (res ? "var(--res)" : "var(--esp)") + '"><div class="label">Fim de jogo · ' + motivo + '</div><h1>' + (res ? "A Resistência venceu!" : "Os espiões venceram!") + '</h1>' +
+      '<p class="muted">Você era ' + (j.eu.espiao ? "espião" : "da Resistência") + ': ' + ((j.eu.espiao ? !res : res) ? "vitória!" : "derrota.") + '</p></div>' +
+    tabuleiro(j) +
+    '<div class="section"><div class="label">Quem era quem</div><div class="roles">' + j.ordem.map(p => '<div><span>' + esc(Nome(p)) + '</span><span class="pill ' + (j.espioes.includes(p) ? "esp" : "res") + '">' + (j.espioes.includes(p) ? "Espião" : "Resistência") + '</span></div>').join("") + '</div></div>' +
+    blocoHistorico(j, true) + acoes;
+}
+
+/* ===== Regras ===== */
+const PASSOS = [
+  ["O objetivo", "A Resistência quer completar 3 missões. Os espiões, infiltrados entre eles, querem sabotar 3. Quem chegar a 3 primeiro vence. São 5 a 10 pessoas, cada uma no seu celular."],
+  ["Papéis secretos", "No começo, cada celular mostra o seu papel. Os espiões veem quem são os outros espiões. A Resistência não sabe de ninguém. Dá para rever o papel a qualquer momento, sem ninguém olhar."],
+  ["O líder monta a equipe", "A cada missão, o líder escolhe quem vai, podendo se incluir. Todos veem a escolha ao vivo. O tamanho da equipe muda de missão para missão. Conversem: acusar, defender e blefar faz parte."],
+  ["Todos votam", "Cada um vota escondido no seu celular. Quando o último vota, todos veem quem aprovou e quem rejeitou. Mais da metade aprovando, a equipe sai. Empate rejeita e a liderança passa para a esquerda. Cinco rejeições seguidas, os espiões vencem."],
+  ["Sucesso ou fracasso", "Só quem está na equipe joga, no próprio celular. A Resistência sempre joga Sucesso; o espião escolhe se sabota. As cartas são embaralhadas e viradas uma por uma, então ninguém sabe quem jogou o quê."],
+  ["Quando a missão cai", "Um fracasso já derruba a missão. Exceção: na 4ª missão, com 7 ou mais pessoas, são precisos 2. Depois de cada missão, a liderança passa para a esquerda."],
+  ["Histórico e pausa", "Com o histórico ligado, a mesa guarda cada proposta: líder, equipe, votos e resultado. Desligado, cada um lembra de cabeça (no fim aparece tudo). Se alguém cair da internet, a partida pausa para todos até a pessoa voltar."]
+];
+function folhaRegras() {
+  if (S.regras == null) return "";
+  const k = S.regras, [t, txt] = PASSOS[k], ultimo = k === PASSOS.length - 1;
+  const n = S.estado ? S.estado.jogadores.length : 0;
+  return '<div class="sheet-bg" data-act="regras-fechar"><div class="sheet" role="dialog" aria-modal="true" aria-label="Regras do Lies" data-stop="1"><div class="sheet-head"><h2>Regras do Lies</h2><button class="icon-btn" data-act="regras-fechar" aria-label="Fechar">×</button></div><div class="sheet-body">' +
+    '<div class="tut" style="border:0;padding:12px 4px"><span class="step">Passo ' + (k + 1) + ' de ' + PASSOS.length + '</span><h2 style="font-size:26px">' + t + '</h2><p>' + txt + '</p>' +
+    (k === 2 ? tabelaMissoes(n) : "") +
+    '<div class="dots">' + PASSOS.map((_, i) => '<i class="' + (i === k ? "on" : "") + '"></i>').join("") + '</div>' +
+    '<div class="row">' + (k > 0 ? '<button class="btn btn-ghost" data-act="regras-prev">Voltar</button>' : '<button class="btn btn-ghost" data-act="regras-fechar">Fechar</button>') +
+    '<button class="btn btn-primary" data-act="' + (ultimo ? "regras-fechar" : "regras-next") + '">' + (ultimo ? "Entendi" : "Próximo") + '</button></div></div></div></div></div>';
+}
+
+/* ===== Render ===== */
+function render() {
+  const app = document.getElementById("app");
+  const foco = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.campo : null;
+  const pos = foco ? document.activeElement.selectionStart : null;
+  const abertos = [...app.querySelectorAll("details.hist-box")].map(d => d.open);
+  let html;
+  if (!S.sessao) html = telaInicio();
+  else if (S.escolherLugar) html = telaEscolherLugar();
+  else if (!S.estado) html = telaConectando();
+  else if (S.estado.fase === "espera") html = telaEspera();
+  else if (S.estado.fase === "ordem") html = telaOrdem();
+  else if (S.estado.fase === "fim") html = telaFim();
+  else html = telaJogo();
+  const aviso = S.sessao && S.estado && S.conexao !== "on" ? '<div class="conexao" role="status">Reconectando…</div>' : "";
+  app.innerHTML = html + folhaRegras() + aviso;
+  // O histórico continua aberto se a pessoa abriu.
+  if (abertos.length && S.estado && S.estado.fase === "jogo") app.querySelectorAll("details.hist-box").forEach((d, i) => { if (abertos[i]) d.open = true; });
+  const j = S.estado && S.estado.jogo;
+  S.revAntes = j && j.cartas ? j.cartas.filter(c => c !== null).length : 0;
+  if (foco) { const el = app.querySelector('[data-campo="' + foco + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} } }
+  const qr = document.getElementById("qr");
+  if (qr && window.QRCode) new QRCode(qr, { text: linkSala(), width: 300, height: 300, correctLevel: QRCode.CorrectLevel.M });
+  document.title = S.estado ? "Lies · " + S.estado.codigo : "Lies · Um Jogo Casual";
+}
+function topo() { try { window.scrollTo(0, 0); } catch {} }
+
+/* ===== Ações ===== */
+document.addEventListener("input", e => {
+  const c = e.target.dataset.campo;
+  if (c === "nome") { S.nome = e.target.value; gravar("lies-nome", S.nome); }
+  if (c === "codigo") { S.codigoDigitado = e.target.value.toUpperCase().replace(/[^A-Z]/g, ""); e.target.value = S.codigoDigitado; }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.dataset && e.target.dataset.campo === "codigo") entrarSala();
+  if (e.key === "Escape") { S.regras = null; S.confirmar = null; render(); }
+});
+
+document.addEventListener("click", e => {
+  const alvo = e.target.closest("[data-act]");
+  if (!alvo || alvo.disabled) return;
+  if (alvo.classList.contains("sheet-bg") && e.target.closest("[data-stop]")) return;
+  const act = alvo.dataset.act, v = alvo.dataset.v;
+  switch (act) {
+    case "home": location.href = "../"; return;
+    case "como": case "regras": S.regras = 0; break;
+    case "regras-next": S.regras++; break;
+    case "regras-prev": S.regras--; break;
+    case "regras-fechar": S.regras = null; break;
+    case "hist-novo": S.historicoNovo = !S.historicoNovo; gravar("lies-historico", S.historicoNovo); break;
+    case "hist-sala": enviar({ t: "opcoes", historico: !S.estado.historico }); return;
+    case "criar": criarSala(); return;
+    case "entrar": entrarSala(); return;
+    case "reconectar": S.erro = ""; tentativas = 0; conectar(); return;
+    case "esquecer": esquecerSala(""); return;
+    case "pedir-sair": S.confirmar = "sair"; break;
+    case "cancelar": S.confirmar = null; break;
+    case "sair":
+      if (S.estado && S.estado.fase === "espera" && !souCriador()) { enviar({ t: "sair" }); esquecerSala(""); return; }
+      // Na partida, a sessão fica guardada para voltar depois; só fechamos a conexão.
+      saindo = true; if (ws) ws.close(); ws = null; S.estado = null; S.confirmar = null; S.conexao = "off"; liberarTela();
+      location.href = "../"; return;
+    case "compartilhar": {
+      const url = linkSala();
+      if (navigator.share) navigator.share({ title: "Lies", text: "Entra na sala " + S.estado.codigo + " do Lies", url }).catch(() => {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => { alvo.textContent = "Link copiado"; }).catch(() => {});
+      return;
+    }
+    case "pedir-lugar": enviar({ t: "pedirLugar", lugar: v, token: S.sessao.token }); return;
+    case "remover": enviar({ t: "remover", pid: v }); return;
+    case "organizar": S.primeiro = null; enviar({ t: "organizar" }); return;
+    case "esquerda": enviar({ t: "esquerda", pid: v }); return;
+    case "primeiro": S.primeiro = v; break;
+    case "comecar": enviar({ t: "comecar", primeiro: S.primeiro }); return;
+    case "voltar-espera": enviar({ t: "voltarEspera" }); return;
+    case "pausar": enviar({ t: "pausar", on: true }); return;
+    case "despausar": enviar({ t: "pausar", on: false }); return;
+    case "pedir-recomecar": S.confirmar = "recomecar"; topo(); break;
+    case "recomecar": S.confirmar = null; S.verPapel = false; enviar({ t: "recomecar" }); topo(); break;
+    case "pedir-mesa": S.confirmar = "mesa"; topo(); break;
+    case "refazer-mesa": S.confirmar = null; S.primeiro = null; enviar({ t: "refazerMesa" }); break;
+    case "liberar": enviar({ t: "devolver", pedido: v, sim: true }); return;
+    case "negar": enviar({ t: "devolver", pedido: v, sim: false }); return;
+    case "ver-papel": S.verPapel = true; break;
+    case "esconder-papel": S.verPapel = false; break;
+    case "papel-ok": S.verPapel = false; S.papelVisto = chavePartida(); gravar("lies-papel", S.papelVisto); topo(); break;
+    case "marcar": jogar({ tipo: "marcar", alvo: v }); return;
+    case "propor": jogar({ tipo: "propor" }); return;
+    case "votar": vibrar(40); jogar({ tipo: "votar", sim: v === "1" }); return;
+    case "carta": vibrar(40); jogar({ tipo: "carta", sucesso: v === "1" }); return;
+    case "virar": jogar({ tipo: "virar" }); return;
+    case "virar-todas": jogar({ tipo: "virar", todas: true }); return;
+    case "seguir": jogar({ tipo: "seguir" }); topo(); return;
+  }
+  render();
+});
+
+S.papelVisto = ler("lies-papel", null);
+render();
+if (S.sessao) conectar();
+</script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("../sw.js", { scope: "../" }).catch(() => {}); });
+}
+</script>
+</body>
+</html>
