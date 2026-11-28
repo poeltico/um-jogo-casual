@@ -1,11 +1,12 @@
 // Service worker do Um Jogo Casual.
 // Guarda o app no aparelho para abrir sem internet (modo celular único).
 // Ao mudar qualquer arquivo do app, aumente a versão abaixo.
-const VERSAO = "v5";
+const VERSAO = "v7";
 const CACHE = "jogo-casual-" + VERSAO;
 const ARQUIVOS = [
   "./",
   "index.html",
+  "catalogo.js",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",
