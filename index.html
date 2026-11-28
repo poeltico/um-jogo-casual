@@ -468,7 +468,9 @@ const MODOS = {
   corrida: { nome: "Corrida", desc: "Cada um por si. O cantor canta para todos e quem acertar primeiro pontua." },
   blitz: { nome: "Blitz", desc: "Em times. 10 músicas em 1 minuto: cada música acertada vale 1 ponto. As que já saíram não repetem." }
 };
-const BLITZ_QTD = 10, BLITZ_TEMPO = 60, BLITZ_RODADAS = 3;
+const BLITZ_QTD = 10, BLITZ_TEMPO = 60, BLITZ_RODADAS = 10;
+const OPCOES_RODADAS = [3, 5, 10, 15];
+function rodadasBlitz(g) { return (g && g.rodadas) || BLITZ_RODADAS; }
 const NIVEIS = { mix: "Hits e de fã", hits: "Só hits", fa: "Só de fã" };
 
 /* ===== Armazenamento local (opcional, só neste aparelho) ===== */
@@ -487,7 +489,7 @@ function setupPadrao() {
   return { mode: "classico", teams: [
     { name: "Time Coral", color: "coral", players: "" },
     { name: "Time Mar", color: "mar", players: "" }
-  ], players: "", packs: ["base"], nivel: "mix" };
+  ], players: "", packs: ["base"], nivel: "mix", rodadas: BLITZ_RODADAS };
 }
 
 let S = { screen: "menu", open: "pabla", rules: null, tut: 0, tutNext: null, err: "", choose: null, exitAsk: false, setup: setupPadrao(), game: null };
@@ -551,7 +553,7 @@ function trocarBlitz(g, i) {
   if (p.length) g.card[i] = p[0];
 }
 function acertosBlitz(g) { return (g.ok || []).filter(Boolean).length; }
-function fimBlitz(g) { return g.teams.every(t => (t.rounds || 0) >= BLITZ_RODADAS); }
+function fimBlitz(g) { return g.teams.every(t => (t.rounds || 0) >= rodadasBlitz(g)); }
 function cantorAtual(g) {
   if (emTimes(g)) { const t = g.teams[g.turn]; return { nome: t.players[t.next % t.players.length], time: t }; }
   return { nome: g.players[g.singer].name, time: null };
@@ -565,7 +567,7 @@ function valorCantor(g) {
 function iniciarPartida() {
   const st = S.setup; S.err = "";
   const packs = pacotesValidos(st.packs);
-  const g = { mode: st.mode, packs, nivel: st.nivel || "mix", turn: 0, singer: 0, deck: novoBaralho(packs), card: null, pick: null, marks: null, log: [], winner: null };
+  const g = { mode: st.mode, packs, nivel: st.nivel || "mix", rodadas: +st.rodadas || BLITZ_RODADAS, turn: 0, singer: 0, deck: novoBaralho(packs), card: null, pick: null, marks: null, log: [], winner: null };
   if (st.mode === "blitz" && !poolBlitz(packs, g.nivel, true).length) { S.err = "Esses pacotes não têm músicas nessa dificuldade. Escolha outra."; return render(); }
   if (st.mode === "corrida") {
     const ps = parseNomes(st.players);
@@ -713,7 +715,7 @@ const REGRAS = [
   ["pontos", "Pontos", "<ul><li>Acertou o artista: " + PTS_ARTISTA + " pontos. Acertou o título: " + PTS_TITULO + " pontos. Os dois: " + (PTS_ARTISTA + PTS_TITULO) + ".</li><li>Música Desafio: tudo em dobro (6, 10 ou 16).</li><li>O tempo continua correndo depois de um acerto: só para quando acertarem artista e título, ou quando os ' + TEMPO + ' segundos acabarem.</li><li>Título vale sem artigos (\"Garota de Ipanema\" vale para \"A Garota de Ipanema\") e sem a parte entre parênteses. Meio título não vale.</li></ul>"],
   ["vez", "De quem é a vez", "<ul><li>Clássico: se o time acertou o artista ou o título, continua jogando. A próxima pessoa do mesmo time canta uma carta nova, com " + TEMPO + " segundos novos. Sem limite de músicas seguidas.</li><li>Se o tempo acabar sem acerto, ou o cantor falar, a vez passa para o próximo time.</li><li>Uma vez por time: a vez sempre passa, mesmo com acerto.</li></ul>"],
   ["corrida", "Modo Corrida", "<ul><li>Cada um por si. O cantor canta para todos.</li><li>Quem acerta ganha como no Clássico: " + PTS_ARTISTA + " pelo artista e " + PTS_TITULO + " pelo título. Podem ser pessoas diferentes.</li><li>O cantor começa valendo " + CORRIDA_INICIO + " pontos e perde 1 a cada 5 segundos. Ele ganha o que estiver valendo no momento em que alguém acerta o título.</li><li>Depois, o celular vai para a próxima pessoa da lista.</li></ul>"],
-  ["blitz", "Modo Blitz", "<ul><li>Em times. Na sua vez, o cantor recebe " + BLITZ_QTD + " músicas e tem " + BLITZ_TEMPO + " segundos para cantarolar o máximo que conseguir, na ordem que quiser.</li><li>Antes de tocar em Valendo, dá para trocar qualquer música da lista.</li><li>Cada música em que o time acerta o título vale 1 ponto. Errou ou travou, pule para a próxima.</li><li>As regras de cantar são as mesmas: sem palavras e sem apontar.</li><li>A vez sempre passa. Cada time joga " + BLITZ_RODADAS + " rodadas e vence quem somar mais acertos.</li><li>As músicas que já saíram na Blitz não repetem, nem em outra partida neste celular. Quando acabam, voltam para o sorteio.</li><li>Dificuldade: só hits, só de fã ou as duas.</li></ul>"],
+  ["blitz", "Modo Blitz", "<ul><li>Em times. Na sua vez, o cantor recebe " + BLITZ_QTD + " músicas e tem " + BLITZ_TEMPO + " segundos para cantarolar o máximo que conseguir, na ordem que quiser.</li><li>Antes de tocar em Valendo, dá para trocar qualquer música da lista.</li><li>Cada música em que o time acerta o título vale 1 ponto. Errou ou travou, pule para a próxima.</li><li>As regras de cantar são as mesmas: sem palavras e sem apontar.</li><li>A vez sempre passa. Cada time joga o número de rodadas escolhido na preparação (padrão: " + BLITZ_RODADAS + ") e vence quem somar mais acertos.</li><li>As músicas que já saíram na Blitz não repetem, nem em outra partida neste celular. Quando acabam, voltam para o sorteio.</li><li>Dificuldade: só hits, só de fã ou as duas.</li></ul>"],
   ["fim", "Fim de jogo", "<p>Quem chegar a " + META + " pontos primeiro vence, na hora.</p>"]
 ];
 function secaoAtual() {
@@ -744,7 +746,7 @@ function placar(g, compacto) {
   if (g.mode === "blitz") {
     const teto = Math.max(BLITZ_QTD, ...g.teams.map(t => t.score));
     return '<div class="board">' + g.teams.map((t, i) =>
-      '<div class="score-row" style="--tc:var(--t-' + t.color + ')"><div class="name"><span class="swatch"></span><span>' + esc(t.name) + (i === g.turn && !compacto && g.winner == null ? " · na vez" : "") + '</span></div><div class="pts">' + t.score + ' · rodada ' + Math.min(BLITZ_RODADAS, (t.rounds || 0) + (i === g.turn && g.winner == null ? 1 : 0)) + '/' + BLITZ_RODADAS + '</div><div class="bar"><i style="width:' + Math.min(100, t.score / teto * 100) + '%"></i></div></div>').join("") + '</div>';
+      '<div class="score-row" style="--tc:var(--t-' + t.color + ')"><div class="name"><span class="swatch"></span><span>' + esc(t.name) + (i === g.turn && !compacto && g.winner == null ? " · na vez" : "") + '</span></div><div class="pts">' + t.score + ' · rodada ' + Math.min(rodadasBlitz(g), (t.rounds || 0) + (i === g.turn && g.winner == null ? 1 : 0)) + '/' + rodadasBlitz(g) + '</div><div class="bar"><i style="width:' + Math.min(100, t.score / teto * 100) + '%"></i></div></div>').join("") + '</div>';
   }
   if (emTimes(g)) {
     return '<div class="board">' + g.teams.map((t, i) =>
@@ -801,6 +803,8 @@ function telaSetup() {
     const ineditas = poolBlitz(packs, nivel).length, todas = poolBlitz(packs, nivel, true).length;
     blitzOpts = '<div class="section"><div class="label">Dificuldade da Blitz</div><div class="chips left">' +
       Object.entries(NIVEIS).map(([k, t]) => '<button class="chip' + (k === nivel ? " on" : "") + '" data-act="nivel" data-v="' + k + '" aria-pressed="' + (k === nivel) + '">' + t + '</button>').join("") + '</div>' +
+      '<div class="label" style="margin-top:6px">Rodadas por time</div><div class="chips left">' +
+      OPCOES_RODADAS.map(n => { const on = n === (+st.rodadas || BLITZ_RODADAS); return '<button class="chip' + (on ? " on" : "") + '" data-act="rodadas" data-v="' + n + '" aria-pressed="' + on + '">' + n + (n === BLITZ_RODADAS ? " (padrão)" : "") + '</button>'; }).join("") + '</div>' +
       '<span class="small muted">' + ineditas + ' de ' + todas + ' músicas ainda não saíram na Blitz neste celular. Quando faltarem, elas voltam sozinhas para o sorteio.</span>' +
       (ineditas < todas ? (S.zerarAsk
         ? '<div class="confirm"><b>Liberar de novo as músicas já tocadas?</b><span class="small">Vale para os pacotes escolhidos.</span><div class="row"><button class="btn btn-ghost" data-act="zerar-nao">Cancelar</button><button class="btn btn-primary" data-act="zerar-sim">Liberar</button></div></div>'
@@ -859,7 +863,7 @@ function telaHandoff() {
     dica("<b>Passe o celular.</b> Ninguém além de " + esc(c.nome) + " deve olhar a tela agora.") +
     '<div class="handoff" style="--tc:' + tc + '"><div class="label">' + sub + ' · vez de</div><div class="who">' + esc(c.nome) + '</div>' +
     '<button class="btn btn-primary" data-act="ver-carta">Sou ' + esc(c.nome) + ': ver ' + (g.mode === "blitz" ? "as músicas" : "a carta") + '</button></div>' +
-    '<div class="section"><div class="label">Placar · ' + (g.mode === "blitz" ? BLITZ_RODADAS + " rodadas por time" : "meta " + META) + '</div>' + placar(g) + '</div>' +
+    '<div class="section"><div class="label">Placar · ' + (g.mode === "blitz" ? rodadasBlitz(g) + " rodadas por time" : "meta " + META) + '</div>' + placar(g) + '</div>' +
     (g.log.length ? '<div class="section"><div class="label">Anotações</div><div class="log">' + g.log.slice(0, 6).map(l => '<div><span>' + esc(l.txt) + '</span><span>+' + l.p + '</span></div>').join("") + '</div></div>' : "");
 }
 
@@ -900,7 +904,7 @@ function telaCantarBlitz() {
 function telaResultadoBlitz() {
   const g = S.game, n = acertosBlitz(g), t = g.teams[g.turn];
   const prox = g.teams[(g.turn + 1) % g.teams.length];
-  const ultima = g.teams.every((x, i) => (x.rounds || 0) + (i === g.turn ? 1 : 0) >= BLITZ_RODADAS);
+  const ultima = g.teams.every((x, i) => (x.rounds || 0) + (i === g.turn ? 1 : 0) >= rodadasBlitz(g));
   return topbar("Pabla · Blitz") + dica("<b>Fim da rodada.</b> Confiram as músicas. Dá para corrigir um acerto tocando nele.") +
     '<div class="result"><div class="label">' + (g.marks.fim === "tempo" ? "Acabou o tempo" : "Rodada encerrada") + ' · ' + esc(t.name) + '</div><div class="big">+' + n + '</div>' +
     '<p class="small muted">' + (ultima ? "Era a última rodada. Vamos ver quem venceu." : "Agora é a vez de " + esc(prox.name) + ".") + '</p></div>' +
@@ -983,7 +987,7 @@ function telaVitoria() {
   const empate = g.winner === -1;
   const nome = empate ? (g.empate || []).map(i => g.teams[i].name).join(" e ") : emTimes(g) ? g.teams[g.winner].name : g.players[g.winner].name;
   const tc = !empate && emTimes(g) ? "var(--t-" + g.teams[g.winner].color + ")" : "var(--accent)";
-  const sub = g.mode === "blitz" ? BLITZ_RODADAS + " rodadas de Blitz" : META + " pontos";
+  const sub = g.mode === "blitz" ? rodadasBlitz(g) + " rodadas de Blitz" : META + " pontos";
   return topbar("Pabla") +
     '<div class="win" style="--tc:' + tc + '"><div class="label">Fim de jogo · ' + sub + '</div><h1>' + (empate ? "Empate! " + esc(nome) : esc(nome) + " venceu!") + '</h1></div>' +
     '<div class="section"><div class="label">Placar final</div>' + placar(g, true) + '</div>' +
@@ -1040,6 +1044,7 @@ document.getElementById("app").addEventListener("click", e => {
     case "pacote": { const v = el.dataset.v, ps = pacotesValidos(S.setup.packs).slice(), i = ps.indexOf(v);
       if (i >= 0) { if (ps.length > 1) ps.splice(i, 1); else S.err = "Deixe pelo menos um pacote ativo."; } else { ps.push(v); S.err = ""; }
       S.setup.packs = ps; salvar(); break; }
+    case "rodadas": S.setup.rodadas = +el.dataset.v; salvar(); break;
     case "nivel": S.setup.nivel = el.dataset.v; S.err = ""; salvar(); break;
     case "zerar": S.zerarAsk = true; break;
     case "zerar-nao": S.zerarAsk = false; break;

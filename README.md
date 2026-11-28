@@ -8,7 +8,7 @@ Jogos para a turma jogar na mesma sala, cada um no seu celular (ou passando um c
 ### Pabla
 Cantarole uma música sem nenhuma palavra e faça seu time adivinhar o artista e o título.
 
-- Modos: Clássico (em times, quem acerta continua), Uma vez por time (sugerido com mais de 15 pessoas), Corrida (cada um por si) e Blitz (10 músicas em 1 minuto, 1 ponto por acerto, 3 rodadas por time; as músicas já tocadas não repetem neste celular).
+- Modos: Clássico (em times, quem acerta continua), Uma vez por time (sugerido com mais de 15 pessoas), Corrida (cada um por si) e Blitz (10 músicas em 1 minuto, 1 ponto por acerto, 10 rodadas por time por padrão (dá para mudar na preparação); as músicas já tocadas não repetem neste celular).
 - Carta com 3 músicas e 1 Desafio, que vale o dobro.
 - 40 segundos por música, com apito quando faltam 15 (aí a coreografia está liberada).
 - Artista vale 3, título vale 5. Vence quem chegar a 50 pontos.
