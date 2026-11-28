@@ -4,6 +4,8 @@
   Cache-Control: no-cache
 /zodiac/*
   Cache-Control: no-cache
+/lies/*
+  Cache-Control: no-cache
 /manifest.webmanifest
   Cache-Control: no-cache
 /icons/*
@@ -11,4 +13,6 @@
 /README.md
   X-Robots-Tag: noindex
 /servidor/*
+  X-Robots-Tag: noindex
+/servidor-lies/*
   X-Robots-Tag: noindex

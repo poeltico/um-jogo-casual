@@ -1,13 +1,14 @@
 // Service worker do Um Jogo Casual.
-// Guarda o app no aparelho para abrir sem internet (o Zodiac precisa de internet para a sala).
+// Guarda o app no aparelho para abrir sem internet (o Zodiac e o Lies precisam de internet para a sala).
 // Ao mudar qualquer arquivo do app, aumente a versão abaixo.
-const VERSAO = "v8";
+const VERSAO = "v9";
 const CACHE = "jogo-casual-" + VERSAO;
 const ARQUIVOS = [
   "./",
   "index.html",
   "catalogo.js",
   "zodiac/",
+  "lies/",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",
@@ -36,10 +37,10 @@ self.addEventListener("fetch", e => {
   if (req.mode === "navigate") {
     e.respondWith(
       fetch(req).then(res => {
-        const copia = res.clone();
-        caches.open(CACHE).then(c => c.put(req, copia));
+        // Cada página fica guardada no seu próprio endereço (home, Zodiac e Lies).
+        if (res.ok && !res.redirected) { const copia = res.clone(); caches.open(CACHE).then(c => c.put(req, copia)); }
         return res;
-      }).catch(() => caches.match(req).then(r => r || caches.match("index.html")))
+      }).catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match("index.html"))
     );
     return;
   }

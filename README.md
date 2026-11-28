@@ -26,6 +26,17 @@ Jogo cooperativo de 2 a 5 pessoas, cada uma no seu celular: acendam as constela�
 - À prova de pizza: se alguém cai, a partida pausa para todos e volta quando todos reconectam.
 - Página: `zodiac/index.html`. Servidor das salas: pasta `servidor/`.
 
+### Lies
+Jogo de blefe de 5 a 10 pessoas, cada uma no seu celular (modo básico: Resistência contra Espiões).
+
+- Cada celular mostra o próprio papel; os espiões veem quem são os outros espiões.
+- O líder monta a equipe no celular dele, todos votam escondido e os votos aparecem juntos no final. Empate rejeita; 5 rejeições seguidas dão a vitória aos espiões.
+- Na missão, só a equipe joga Sucesso ou Fracasso (a Resistência não consegue jogar Fracasso). As cartas são embaralhadas e viradas uma a uma; o servidor nunca guarda quem jogou o quê.
+- Opção da sala: histórico de votações e equipes (ligado ou desligado). No fim aparece tudo de qualquer jeito.
+- A liderança anda no sentido horário: antes de começar, cada um responde quem está à sua esquerda.
+- À prova de pizza: se alguém cai, a partida pausa para todos.
+- Página: `lies/index.html`. Servidor das salas: pasta `servidor-lies/` (Worker `lies-salas`, https://lies-salas.poeltico.workers.dev).
+
 ## Arquivos
 
 | Arquivo | Para quê |
@@ -34,6 +45,8 @@ Jogo cooperativo de 2 a 5 pessoas, cada uma no seu celular: acendam as constela�
 | `catalogo.js` | Pacotes do catálogo (Sertanejo 90, Pagode 90, Emo e rock 2000, MPB e rock BR) |
 | `zodiac/index.html` | O Zodiac (telas do jogo; fala com o servidor das salas) |
 | `servidor/` | Worker da Cloudflare com as salas do Zodiac (Durable Objects) e os testes das regras |
+| `lies/index.html` | O Lies (telas do jogo; fala com o servidor das salas) |
+| `servidor-lies/` | Worker da Cloudflare com as salas do Lies (Durable Objects) e os testes das regras |
 | `manifest.webmanifest` | Nome, cores e ícones para instalar na tela inicial |
 | `sw.js` | Guarda o app no aparelho para abrir sem internet |
 | `icons/` | Ícones do app |
@@ -73,3 +86,15 @@ npx wrangler deploy           # publica o Worker (precisa estar logado na Cloudf
 
 O site continua no Cloudflare Pages. A página do Zodiac usa o servidor local quando aberta em `localhost`,
 e aceita `?servidor=URL` para testar outro endereço. O Worker só aceita pedidos do site e de `localhost`.
+
+## Servidor das salas (Lies)
+
+```bash
+cd servidor-lies
+npm install
+npm test                  # regras do jogo
+npx wrangler dev          # servidor local em http://localhost:8787 (a página usa ele quando aberta em localhost)
+npx wrangler deploy       # publica o Worker lies-salas
+```
+
+A página aceita `?servidor=URL` para testar outro endereço. O Worker só aceita pedidos do site e de `localhost`.
